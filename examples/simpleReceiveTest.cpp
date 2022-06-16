@@ -10,8 +10,6 @@
 
 //HardwareSerial* mySerial = &Serial1;
 
-//const uint8_t buff[] = {0x16, 0x00, 0x00};
-
 void setup() {
   Serial.begin(9600);
   Serial1.begin(4800, SERIAL_8E2, RX_PIN, TX_PIN); // RX, TX
@@ -20,10 +18,6 @@ void setup() {
 }
 
 void loop() {
-  //const uint8_t buff[] = {0x16, 0x00, 0x00};
-  //Serial1.write(buff, sizeof(buff));
- 
-
 
   if(Serial1.available() > 1){
     Serial.println();
