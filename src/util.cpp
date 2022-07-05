@@ -5,8 +5,8 @@
 // LED Pin
 const int ledPin = 4;
 mqttConfiguration mqttConfig = {
-  "Ayoubs iPhone",
-  "aziat2294",
+  "ssid",
+  "pw",
   "broker.hivemq.com",
   "de/heizungsanlage/data"
 };
