@@ -13,12 +13,15 @@ struct mqttConfiguration{
 };
 
 class Communication {
-    private:
-        mqttConfiguration mqtt_config;
     public:
-        Communication(mqttConfiguration config);
+        mqttConfiguration mqtt_config;
+        Communication();
+        // Communication(mqttConfiguration config, PubSubClient* client);
         void setup_wifi();
         void callback(char* topic, byte* message, unsigned int length);
+        void reconnect(PubSubClient client);
+        mqttConfiguration getMQTTConfig();
+        PubSubClient* getPubSubClient();
 };
 
 #endif // UTIL_H

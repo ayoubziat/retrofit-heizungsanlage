@@ -2,6 +2,7 @@
 #include "util.h"
 #include <Wire.h>
 #include "ClosedCube_HDC1080.h"
+#include <FastLED.h>
 
 // Lab@Home Pins
 //#define TX_PIN 5
@@ -11,39 +12,44 @@
 #define TX_PIN 10
 #define RX_PIN 9
 
+#define TIME_INTERVAL 5000
 //HardwareSerial* mySerial = &Serial1;
-mqttConfiguration mqtt_config = {
-  "ssid",
-  "pw",
-  "broker.hivemq.com",
-  "de/heizungsanlage/data"
-};
-Communication comm(mqtt_config);
+
 ClosedCube_HDC1080 hdc1080;
-WiFiClient espClient;
-PubSubClient client(espClient);
+WiFiClient deviceClient;
+PubSubClient client(deviceClient);
+Communication comm;
 
+// constants
+constexpr int NUM_LEDS{4};
+constexpr int DATA_PIN{15};
+
+// variables
 //const uint8_t buff[] = {0x16, 0x00, 0x00};
-void printSerialNumber() {
-	Serial.print("Device Serial Number=");
-	HDC1080_SerialNumber sernum = hdc1080.readSerialNumber();
-	char format[40];
-	sprintf(format, "%02X-%04X-%04X", sernum.serialFirst, sernum.serialMid, sernum.serialLast);
-	Serial.println(format);
-}
+int64_t nextTimeHDC1080{0};
+char msg[50];
+int value = 0;
+float temperature = 0;
+float humidity = 0;
+CRGB leds[NUM_LEDS];
 
-void callback(char* topic, byte* message, unsigned int length){
-  comm.callback(topic, message, length);
-}
+// Function prototypes
+void printSerialNumber();
+void callback(char*, byte*, unsigned int);
+void reconnect();
+
 void setup() {
   Serial.begin(9600);
   hdc1080.begin(0x40);
   // Serial1.begin(4800, SERIAL_8E2, RX_PIN, TX_PIN); // RX, TX
   // delay(2500);
 
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
+  delay(10);
   comm.setup_wifi();
-  client.setServer(mqtt_config.mqtt_server, 1883);
+  client.setServer(comm.mqtt_config.mqtt_server, 1883);
 	client.setCallback(callback);
+  reconnect();
 
   Serial.print("Manufacturer ID=0x");
 	Serial.println(hdc1080.readManufacturerId(), HEX); // 0x5449 ID of Texas Instruments
@@ -57,12 +63,67 @@ void loop() {
   //Serial1.write(buff, sizeof(buff));
  
   if(Serial1.available() > 1){
-    Serial.println();
-    Serial.print("Serial Data is available! "); Serial.print("The Message is "); Serial.print(Serial1.read());
+    Serial.printf("Serial Data is available! The Message is: %d\n", Serial1.read()); 
   }else{
-    Serial.print("No Data received...");
+    // Serial.print("No Data received...\n");
   }
 
+  if (!client.connected()) {
+		// comm.reconnect(client);
+    reconnect();
+	}
+
+	client.loop();
+
+	long current_time = millis();
+	if (current_time - nextTimeHDC1080 > TIME_INTERVAL) {
+		nextTimeHDC1080 = current_time;
+		
+		temperature = hdc1080.readTemperature(); 
+		humidity = hdc1080.readHumidity();
+		
+		// Convert the values to a char array
+		char tempString[8];
+		dtostrf(temperature, 1, 2, tempString);
+		char humString[8];
+		dtostrf(humidity, 1, 2, humString);
+		Serial.printf("Temp=%f C, Humidity= %f % \n", temperature, humidity);
+
+    // Publish the values
+		if(!client.publish(comm.mqtt_config.mqtt_topic, tempString))
+		  Serial.println("Error while publishing the temperature value");
+		if(!client.publish(comm.mqtt_config.mqtt_topic, humString))
+		  Serial.println("Error while publishing the humidity value");
+	}
   delay(2500);
-  
+}
+
+void printSerialNumber() {
+	Serial.print("Device Serial Number=");
+	HDC1080_SerialNumber sernum = hdc1080.readSerialNumber();
+	char format[40];
+	sprintf(format, "%02X-%04X-%04X", sernum.serialFirst, sernum.serialMid, sernum.serialLast);
+	Serial.println(format);
+}
+
+void callback(char* topic, byte* message, unsigned int length){
+  comm.callback(topic, message, length);
+}
+
+void reconnect() {
+  // Loop until we're reconnected
+  while (!client.connected()) {
+    printf("Attempting MQTT connection...\n\t");
+    // Attempt to connect
+    if (client.connect("Lab@home")) {
+      printf("Device connected\n");
+      // Subscribe to a topic
+      client.subscribe("de/heizungsanlage/lightControl");
+      break;
+    } else {
+      printf("Failed, rc=%d. Try again in 1 seconds\n", client.state());
+      // Wait 1 seconds before retrying
+      delay(1000);
+    }
+  }
 }
