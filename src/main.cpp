@@ -46,8 +46,10 @@ void setup() {
 
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
   delay(10);
+  comm.setup();
+  delay(10);
   comm.setup_wifi();
-  client.setServer(comm.mqtt_config.mqtt_server, 1883);
+  client.setServer(comm.mqtt_config.mqtt_server, comm.mqtt_config.mqtt_port);
 	client.setCallback(callback);
   reconnect();
 
@@ -90,10 +92,17 @@ void loop() {
 		Serial.printf("Temp=%f C, Humidity= %f % \n", temperature, humidity);
 
     // Publish the values
-		if(!client.publish(comm.mqtt_config.mqtt_topic, tempString))
-		  Serial.println("Error while publishing the temperature value");
-		if(!client.publish(comm.mqtt_config.mqtt_topic, humString))
-		  Serial.println("Error while publishing the humidity value");
+    for (string topic: comm.mqtt_config.mqtt_publish_topics){
+      if(topic.find("temperature")!=string::npos){
+          if(!client.publish(topic.c_str(), tempString))
+		        Serial.println("Error while publishing the temperature value");
+      }else if(topic.find("humidity")!=string::npos){
+          if(!client.publish(topic.c_str(), humString))
+		        Serial.println("Error while publishing the humidity value");
+      }else{
+        // ToDo
+      }
+    }
 	}
   delay(2500);
 }
@@ -117,8 +126,11 @@ void reconnect() {
     // Attempt to connect
     if (client.connect("Lab@home")) {
       printf("Device connected\n");
-      // Subscribe to a topic
-      client.subscribe("de/heizungsanlage/lightControl");
+      // Subscribe to topics
+      for(string mqtt_topic: comm.mqtt_config.mqtt_subscribe_topics){
+        printf("Subscribing to MQTT topic: %s\n", mqtt_topic.c_str());
+        client.subscribe(mqtt_topic.c_str());
+      }
       break;
     } else {
       printf("Failed, rc=%d. Try again in 1 seconds\n", client.state());

@@ -1,0 +1,13 @@
+{
+	"mqtt_server": "broker.hivemq.com",
+	"mqtt_port": 1883,
+    "ssid": "ssid",
+    "password": "pw",
+    "publish_topics": [
+        "de/heizungsanlage/data/temperature", 
+        "de/heizungsanlage/data/humidity"
+    ],
+    "subscribe_topics": [
+        "de/heizungsanlage/lightControl"
+    ]
+}

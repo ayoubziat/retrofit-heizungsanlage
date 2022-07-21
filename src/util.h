@@ -3,13 +3,22 @@
 
 #include <PubSubClient.h>
 #include <WiFi.h>
+#include<iostream> 
+#include <list>
+
+using namespace std;
+
 
 struct mqttConfiguration{
     /* data */
     const char* ssid;
     const char* password;
     const char* mqtt_server;
-    const char* mqtt_topic;
+    int mqtt_port;
+    // const char* mqtt_publish_topic;
+    // const char* mqtt_subscribe_topic;
+    list<string> mqtt_publish_topics;
+    list<string> mqtt_subscribe_topics;
 };
 
 class Communication {
@@ -17,6 +26,7 @@ class Communication {
         mqttConfiguration mqtt_config;
         Communication();
         // Communication(mqttConfiguration config, PubSubClient* client);
+        void setup();
         void setup_wifi();
         void callback(char* topic, byte* message, unsigned int length);
         void reconnect(PubSubClient client);

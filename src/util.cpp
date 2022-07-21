@@ -4,17 +4,28 @@
 
 // LED Pin
 const int ledPin = 4;
+
+// MQTT Ccnfiguration
 mqttConfiguration mqttConfig = {
   "ssid",
   "pw",
   "broker.hivemq.com",
-  "de/heizungsanlage/data"
+  1883,
+  {"de/heizungsanlage/data/temperature", "de/heizungsanlage/data/humidity"},
+  {"de/heizungsanlage/lightControl"}
 };
 
 Communication::Communication()
 {
     printf("## Init Communication Class ## \n");
     mqtt_config = mqttConfig;
+}
+
+void Communication::setup(){
+  pinMode (ledPin, OUTPUT);
+  digitalWrite(ledPin, HIGH);
+  delay(2000);
+  digitalWrite(ledPin, LOW);
 }
 
 void Communication::setup_wifi() {
@@ -38,7 +49,7 @@ void Communication::setup_wifi() {
 void Communication::callback(char* topic, byte* message, unsigned int length) {
   printf("## Callback ##\n");
   printf("Message arrived on topic: %s.\n", topic);
-  printf("Message: ");
+  printf("Message is: ");
   String messageTemp;
   
   for (int i = 0; i < length; i++) {
@@ -47,16 +58,20 @@ void Communication::callback(char* topic, byte* message, unsigned int length) {
   }
   printf("\n");
 
-  if (String(topic) == "de/klaus-liebler/lightControl") {
-    Serial.print("Changing output to ");
-    if(messageTemp == "on"){
-      printf("on\n");
-      digitalWrite(ledPin, HIGH);
-    }
-    else if(messageTemp == "off"){
-      printf("off\n");
-      digitalWrite(ledPin, LOW);
-    }
+  for(string mqtt_topic: mqttConfig.mqtt_subscribe_topics){
+    if (string(topic) == mqtt_topic) {
+      Serial.print("Changing LED output to ");
+      if(messageTemp == "on"){
+        printf("on\n");
+        digitalWrite(ledPin, HIGH);
+      }
+      else if(messageTemp == "off"){
+        printf("off\n");
+        digitalWrite(ledPin, LOW);
+      }else{
+        printf("Message couldn't be evalued\n");
+      }
+  }
   }
 }
 
@@ -65,10 +80,10 @@ void Communication::reconnect(PubSubClient client) {
   while (!client.connected()) {
     printf("Attempting MQTT connection...\n\t");
     // Attempt to connect
-    if (client.connect("Klaus-Liebler-Client")) {
+    if (client.connect("")) {
       printf("Device connected\n");
       // Subscribe
-      client.subscribe("de/klaus-liebler/roomdata");
+      client.subscribe("");
       break;
     } else {
       printf("Failed, rc=%d. Try again in 5 seconds\n", client.state());
