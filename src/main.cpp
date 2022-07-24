@@ -1,37 +1,53 @@
 #include <Arduino.h>
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
 
-// Lab@Home Pins
-//#define TX_PIN 5
-//#define RX_PIN 6
-
-// esp32 NodeMCU
-#define TX_PIN 10
-#define RX_PIN 9
-
-//HardwareSerial* mySerial = &Serial1;
-
-//const uint8_t buff[] = {0x16, 0x00, 0x00};
+#define DHTPIN 12
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
 
 void setup() {
   Serial.begin(9600);
-  Serial1.begin(4800, SERIAL_8E2, RX_PIN, TX_PIN); // RX, TX
   delay(2500);
+
+  dht.begin();
   
 }
 
 void loop() {
-  //const uint8_t buff[] = {0x16, 0x00, 0x00};
-  //Serial1.write(buff, sizeof(buff));
- 
+  // Wait a few seconds between measurements.
+  delay(2000);
 
+  // Reading temperature or humidity takes about 250 milliseconds!
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  float h = dht.readHumidity();
+  // Read temperature as Celsius (the default)
+  float t = dht.readTemperature();
+  // Read temperature as Fahrenheit (isFahrenheit = true)
+  float f = dht.readTemperature(true);
 
-  if(Serial1.available() > 1){
-    Serial.println();
-    Serial.print("Serial Data is available! "); Serial.print("The Message is "); Serial.print(Serial1.read());
-  }else{
-    Serial.print("No Data received...");
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(t) || isnan(f)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
   }
 
-  delay(2500);
+  // Compute heat index in Fahrenheit (the default)
+  float hif = dht.computeHeatIndex(f, h);
+  // Compute heat index in Celsius (isFahreheit = false)
+  float hic = dht.computeHeatIndex(t, h, false);
+
+  Serial.print(F("Humidity: "));
+  Serial.print(h);
+  Serial.print(F("%  Temperature: "));
+  Serial.print(t);
+  Serial.print(F("°C "));
+  Serial.print(f);
+  Serial.print(F("°F  Heat index: "));
+  Serial.print(hic);
+  Serial.print(F("°C "));
+  Serial.print(hif);
+  Serial.println(F("°F"));
   
 }
