@@ -42,8 +42,8 @@ extern void printSerialNumber();
 
 // MQTT Configuration example
 const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
-  "Honolulu",
-  "$D9cA@1#46*Z%$O7%",
+  "ssid",
+  "pw",
   "broker.hivemq.com",
   1883,
   {
