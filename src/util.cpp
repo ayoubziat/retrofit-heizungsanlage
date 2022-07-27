@@ -88,20 +88,39 @@ void Communication::mqttCallback(char* topic, byte* message, unsigned int length
   }
   printf("\n");
 
-  for(string mqtt_topic: CONFIG->mqtt_subscribe_topics){
-    if (string(topic) == mqtt_topic) {
-      printf("Changing LED output to ");
-      if(messageTemp == "on"){
-        printf("on\n");
-        digitalWrite(LED_PIN, HIGH);
-      }
-      else if(messageTemp == "off"){
-        printf("off\n");
-        digitalWrite(LED_PIN, LOW);
-      }else{
-        printf("Message couldn't be evalued\n");
-      }
+  if (string(topic) == "de/lab@home/lightControl") {
+    printf("Changing LED output to ");
+    if(messageTemp == "on"){
+      printf("on\n");
+      digitalWrite(LED_PIN, HIGH);
+      leds[0] = CRGB::DarkOliveGreen;
+      FastLED.show();
     }
+    else if(messageTemp == "off"){
+      printf("off\n");
+      digitalWrite(LED_PIN, LOW);
+      leds[0] = CRGB::Black;
+      FastLED.show();
+    }
+    else{
+      printf("Message couldn't be handled\n");
+    }
+  } 
+  else if (string(topic) == "de/heizungsanlage/data"){
+    if(messageTemp == "true"){
+      printf("Subscribe to topic \"de/heizungsanlage/data/+\"\n");
+      pubSubClient.subscribe("de/heizungsanlage/data/+");
+    }
+    else if(messageTemp == "false"){
+      printf("Unsubscribe from topic \"de/heizungsanlage/data/+\"\n");
+      pubSubClient.unsubscribe("de/heizungsanlage/data/+");
+    }
+    else{
+      printf("Message couldn't be handled\n");
+    }
+  } 
+  else{
+    // ToDo
   }
 }
 

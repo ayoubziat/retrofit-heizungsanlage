@@ -47,10 +47,14 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
   "broker.hivemq.com",
   1883,
   {
-    "de/heizungsanlage/data/temperature", 
-    "de/heizungsanlage/data/humidity"
+    "de/lab@home/data/temperature", 
+    "de/lab@home/data/humidity",
+    "de/heizungsanlage/data/temperature"
   },
-  {"de/heizungsanlage/lightControl"}
+  {
+    "de/lab@home/lightControl",
+    "de/heizungsanlage/data",
+  }
 };
 
 // Lab@Home Pins
