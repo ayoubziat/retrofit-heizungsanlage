@@ -1,5 +1,7 @@
 #include <Arduino.h>
+#include <Wire.h>
 #include <string.h>
+#include "util.h"
 
 using namespace std;
 
@@ -135,7 +137,7 @@ class Optolink {
   };
 
 Optolink optolink;  
-
+Communication comm(MQTT_CONFIG_EXAMPLE);
 
 void setup() {
   Serial.begin(57600);
@@ -222,5 +224,7 @@ void loop() {
     }
   }
 
+  comm.loop();
   optolink.debugPrinter();
+  
 }
