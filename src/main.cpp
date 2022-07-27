@@ -143,6 +143,7 @@ void setup() {
   Serial.begin(57600);
   optolink.stream = &Serial1;
   optolink.stream -> begin(4800, SERIAL_8E2);
+  comm.setup();
 }
 
 void loop() {
