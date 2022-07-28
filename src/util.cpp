@@ -12,7 +12,7 @@ CRGB leds[NUM_LEDS];
 
 static mqttConfiguration* CONFIG;
 
-Communication::Communication(mqttConfiguration config)
+Communication::Communication(struct mqttConfiguration config)
 {
     printf("## Init Communication Class ## \n");
     comm_mqtt_config = config;
@@ -24,11 +24,6 @@ void Communication::setup(){
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
   hdc1080.begin(0x40);
   Communication::setup_wifi();
-
-  pinMode (LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);
-  delay(2000);
-  digitalWrite(LED_PIN, LOW);
 
   pubSubClient.setServer(comm_mqtt_config.mqtt_server, comm_mqtt_config.mqtt_port);
 	pubSubClient.setCallback(mqttCallback);
@@ -92,13 +87,11 @@ void Communication::mqttCallback(char* topic, byte* message, unsigned int length
     printf("Changing LED output to ");
     if(messageTemp == "on"){
       printf("on\n");
-      digitalWrite(LED_PIN, HIGH);
       leds[0] = CRGB::DarkOliveGreen;
       FastLED.show();
     }
     else if(messageTemp == "off"){
       printf("off\n");
-      digitalWrite(LED_PIN, LOW);
       leds[0] = CRGB::Black;
       FastLED.show();
     }
@@ -131,36 +124,36 @@ void Communication::loop(){
 
 	pubSubClient.loop();
 
-	long current_time = millis();
-	if (current_time - nextTimeHDC1080 > TIME_INTERVAL) {
-		nextTimeHDC1080 = current_time;
+	// long current_time = millis();
+	// if (current_time - nextTimeHDC1080 > TIME_INTERVAL) {
+	// 	nextTimeHDC1080 = current_time;
 		
-		temperature = hdc1080.readTemperature(); 
-		humidity = hdc1080.readHumidity();
+	// 	temperature = hdc1080.readTemperature(); 
+	// 	humidity = hdc1080.readHumidity();
 		
-		// Convert the values to a char array
-		char tempString[8];
-		dtostrf(temperature, 1, 2, tempString);
-		char humString[8];
-		dtostrf(humidity, 1, 2, humString);
-		printf("Temp=%f C, Humidity= %f % \n", temperature, humidity);
+	// 	// Convert the values to a char array
+	// 	char tempString[8];
+	// 	dtostrf(temperature, 1, 2, tempString);
+	// 	char humString[8];
+	// 	dtostrf(humidity, 1, 2, humString);
+	// 	printf("Temp=%f C, Humidity= %f % \n", temperature, humidity);
 
-    // Publish the values
-    for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
-      if(topic.find("temperature") != string::npos){
-          if(!pubSubClient.publish(topic.c_str(), tempString))
-		        printf("Error while publishing the temperature value!\n");
-      }
-      else if(topic.find("humidity") != string::npos){
-          if(!pubSubClient.publish(topic.c_str(), humString))
-		        printf("Error while publishing the humidity value!\n");
-      }
-      else {
-        // ToDo
-      }
-    }
-	}
-  delay(2500);
+  //   // Publish the values
+  //   for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
+  //     if(topic.find("temperature") != string::npos){
+  //         if(!pubSubClient.publish(topic.c_str(), tempString))
+	// 	        printf("Error while publishing the temperature value!\n");
+  //     }
+  //     else if(topic.find("humidity") != string::npos){
+  //         if(!pubSubClient.publish(topic.c_str(), humString))
+	// 	        printf("Error while publishing the humidity value!\n");
+  //     }
+  //     else {
+  //       // ToDo
+  //     }
+  //   }
+	// }
+  //delay(2500);
 }
 
 // Getters

@@ -14,7 +14,7 @@ struct dataPoint{
 };
 
 enum StateMachine { INIT = 0, IDLE, READ, WRITE, LISTEN, WAIT };
-StateMachine currentState = IDLE;
+StateMachine currentState = INIT;
 
 class Optolink {
   public:
@@ -141,9 +141,10 @@ Communication comm(MQTT_CONFIG_EXAMPLE);
 
 void setup() {
   Serial.begin(57600);
+  comm.setup();
+  delay(2000);
   optolink.stream = &Serial1;
   optolink.stream -> begin(4800, SERIAL_8E2);
-  comm.setup();
 }
 
 void loop() {
@@ -196,7 +197,7 @@ void loop() {
           optolink.datapoints[optolink.datapoint].value = value / optolink.datapoints[optolink.datapoint].factor;
         }
         
-          // Nächsten Datenpunkt setzen
+        // Nächsten Datenpunkt setzen
         if(optolink.datapoint < sizeof(optolink.datapoints) / sizeof(optolink.datapoints[0])){
           ++optolink.datapoint;
         } else {

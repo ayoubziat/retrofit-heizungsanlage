@@ -1,5 +1,5 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef __UTIL_H
+#define __UTIL_H
 
 #include <FastLED.h>
 #include <PubSubClient.h>
@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include <iostream> 
 #include <list>
+#include "credentials.h"
 
 using namespace std;
 
@@ -24,8 +25,8 @@ struct mqttConfiguration {
 
 class Communication {
     public:
-        mqttConfiguration comm_mqtt_config;
-        Communication(mqttConfiguration config);
+        struct mqttConfiguration comm_mqtt_config;
+        Communication(struct mqttConfiguration config);
         void setup();
         void setup_wifi();
         void reconnect();
@@ -42,8 +43,8 @@ extern void printSerialNumber();
 
 // MQTT Configuration example
 const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
-  "ssid",
-  "pw",
+  WIFI_SSID,
+  WIFI_PASSWORD,
   "broker.hivemq.com",
   1883,
   {
@@ -67,10 +68,7 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
 
 #define TIME_INTERVAL 5000
 
-// LED Pin
-constexpr int LED_PIN = 4;
-
 constexpr int NUM_LEDS{4};
 constexpr int DATA_PIN{15};
 
-#endif // UTIL_H
+#endif // __UTIL_H
