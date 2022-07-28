@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <string.h>
-#include "util.h"
+#include <util.h>
 
 using namespace std;
 
@@ -141,6 +141,7 @@ Communication comm(MQTT_CONFIG_EXAMPLE);
 
 void setup() {
   Serial.begin(57600);
+  comm.commSerial = &Serial;
   comm.setup();
   delay(2000);
   optolink.stream = &Serial1;

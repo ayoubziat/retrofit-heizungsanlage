@@ -14,13 +14,12 @@ static mqttConfiguration* CONFIG;
 
 Communication::Communication(struct mqttConfiguration config)
 {
-    printf("## Init Communication Class ## \n");
     comm_mqtt_config = config;
     CONFIG = &comm_mqtt_config;
 }
 
 void Communication::setup(){
-  printf("## Comm Setup ## \n");
+  this->commSerial->print("## Comm Setup ## \n");
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
   hdc1080.begin(0x40);
   Communication::setup_wifi();
@@ -33,83 +32,82 @@ void Communication::setup(){
 
 void Communication::setup_wifi() {
   // We start by connecting to a WiFi network
-  printf("\n### Setup WiFi ###\n");
-  printf("\tConnecting to ");
-  printf(comm_mqtt_config.ssid);
+  this->commSerial->print("\n### Setup WiFi ###\n");
+  this->commSerial->print("\tConnecting to ");
+  this->commSerial->print(comm_mqtt_config.ssid);
   WiFi.begin(comm_mqtt_config.ssid, comm_mqtt_config.password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    printf(".");
+    this->commSerial->print(".");
   }
-  printf("\n\tWiFi connected!");
+  this->commSerial->print("\n\tWiFi connected!");
   char buf[16];
   IPAddress ip = WiFi.localIP();
   sprintf(buf, "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
-  printf("\n\tIP address: %s\n\n", buf);
+  this->commSerial->printf("\n\tIP address: %s\n\n", buf);
 }
 
 void Communication::reconnect() {
-  printf("## Reconnect ##\n");
+  this->commSerial->print("## Reconnect ##\n");
   // Loop until we're reconnected
   while (!pubSubClient.connected()) {
-    printf("Attempting MQTT connection...\n\t");
+    this->commSerial->print("Attempting MQTT connection...\n\t");
     // Attempt to connect
     if (pubSubClient.connect("Lab@home")) {
-      printf("Device connected\n");
+      this->commSerial->print("Device connected\n");
       // Subscribe to topics
       for(string mqtt_topic: comm_mqtt_config.mqtt_subscribe_topics){
-        printf("Subscribing to MQTT topic: %s\n", mqtt_topic.c_str());
+        this->commSerial->printf("Subscribing to MQTT topic: %s\n", mqtt_topic.c_str());
         pubSubClient.subscribe(mqtt_topic.c_str());
       }
-      printf("----- End -----\n");
       break;
     } else {
-      printf("Failed, rc=%d. Try again in 5 seconds\n", pubSubClient.state());
-      // Wait 5 seconds before retrying
-      delay(5000);
+      this->commSerial->printf("Failed, rc=%d. Try again in 2 seconds\n", pubSubClient.state());
+      // Wait 2 seconds before retrying
+      delay(2000);
     }
   }
 }
 
 void Communication::mqttCallback(char* topic, byte* message, unsigned int length){
-  printf("## MQTT Callback ##\n");
-  printf("Message arrived on topic: %s.\n", topic);
+  Serial.print("## MQTT Callback ##\n");
+  Serial.printf("Message arrived on topic: %s.\n", topic);
   printf("Message is: ");
   String messageTemp;
   
   for (int i = 0; i < length; i++) {
-    printf("%c", (char)message[i]);
+    Serial.printf("%c", (char)message[i]);
     messageTemp += (char)message[i];
   }
-  printf("\n");
+  Serial.println();
 
   if (string(topic) == "de/lab@home/lightControl") {
-    printf("Changing LED output to ");
+    Serial.print("Changing LED output to ");
     if(messageTemp == "on"){
-      printf("on\n");
+      Serial.print("on\n");
       leds[0] = CRGB::DarkOliveGreen;
       FastLED.show();
     }
     else if(messageTemp == "off"){
-      printf("off\n");
+      Serial2.print("off\n");
       leds[0] = CRGB::Black;
       FastLED.show();
     }
     else{
-      printf("Message couldn't be handled\n");
+      Serial.print("Message couldn't be handled\n");
     }
   } 
   else if (string(topic) == "de/heizungsanlage/data"){
     if(messageTemp == "true"){
-      printf("Subscribe to topic \"de/heizungsanlage/data/+\"\n");
+      Serial.print("Subscribe to topic \"de/heizungsanlage/data/+\"\n");
       pubSubClient.subscribe("de/heizungsanlage/data/+");
     }
     else if(messageTemp == "false"){
-      printf("Unsubscribe from topic \"de/heizungsanlage/data/+\"\n");
+      Serial.print("Unsubscribe from topic \"de/heizungsanlage/data/+\"\n");
       pubSubClient.unsubscribe("de/heizungsanlage/data/+");
     }
     else{
-      printf("Message couldn't be handled\n");
+      Serial.print("Message couldn't be handled\n");
     }
   } 
   else{
@@ -164,12 +162,12 @@ mqttConfiguration Communication::getMQTTConfig() {
 
 // Helper functions
 void printSerialNumber() {
-  printf("\n## Print Serial Number ##\n");
-  printf("Manufacturer ID=0x%x\n", hdc1080.readManufacturerId()); // 0x5449 ID of Texas Instruments
-	printf("Device ID=0x%x\n", hdc1080.readDeviceId()); // 0x1050 ID of the device
+  Serial.print("\n## Print Serial Number ##\n");
+  Serial.printf("Manufacturer ID=0x%x\n", hdc1080.readManufacturerId()); // 0x5449 ID of Texas Instruments
+	Serial.printf("Device ID=0x%x\n", hdc1080.readDeviceId()); // 0x1050 ID of the device
 
 	HDC1080_SerialNumber sernum = hdc1080.readSerialNumber();
 	char format[40];
 	sprintf(format, "%02X-%04X-%04X", sernum.serialFirst, sernum.serialMid, sernum.serialLast);
-	printf("Device Serial Number=%s\n\n", format);
+	Serial.printf("Device Serial Number=%s\n\n", format);
 }

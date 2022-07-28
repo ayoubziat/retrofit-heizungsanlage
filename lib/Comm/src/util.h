@@ -26,6 +26,7 @@ struct mqttConfiguration {
 class Communication {
     public:
         struct mqttConfiguration comm_mqtt_config;
+        HardwareSerial* commSerial{nullptr};
         Communication(struct mqttConfiguration config);
         void setup();
         void setup_wifi();

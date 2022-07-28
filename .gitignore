@@ -6,4 +6,4 @@
 .vscode/extensions.json
 .vscode/ipch
 .DS_Store
-src/credentials.h
+lib/Comm/src/credentials.h
