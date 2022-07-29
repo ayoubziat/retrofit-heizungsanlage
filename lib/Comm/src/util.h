@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include <iostream> 
 #include <list>
+#include <optolink.h>
 #include "credentials.h"
 
 using namespace std;
@@ -34,6 +35,7 @@ class Communication {
         mqttConfiguration getMQTTConfig();
         static void mqttCallback(char* topic, byte* message, unsigned int length);
         void loop();
+        void publish(struct dataPoint point);
 };
 
 // Function prototypes

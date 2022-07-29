@@ -154,6 +154,54 @@ void Communication::loop(){
   //delay(2500);
 }
 
+void Communication::publish(struct dataPoint point){
+          // Convert the values to a char array
+          char valueString[8];
+          // ultoa(value, tempString);
+          sprintf(valueString, "%d", point.value);
+          // Serial.print(point.name);
+          // Serial.printf(" = %d \n",point.value);
+          if(point.name == "03_Kesseltemp_(S3)"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+              if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", valueString))
+                Serial.print("Error while publishing the geraete value!\n");
+            }
+            else if(point.name == "17_Kesseltemp_Soll"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+                if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperaturesoll", valueString))
+                  Serial.print("Error while publishing the kesseltemperatureist value!\n");
+            }
+            else if(point.name == "19_Betriebsart"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+                if(!pubSubClient.publish("de/heizungsanlage/data/betriebsart", valueString))
+                  Serial.print("Error while publishing the kesseltemperaturesoll value!\n");
+            }
+            else if(point.name == "20_Sparbetrieb"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+                if(!pubSubClient.publish("de/heizungsanlage/data/sparbetrieb", valueString))
+                  Serial.print("Error while publishing the betriebsart value!\n");
+            }
+            else if(point.name == "Party Temperatur Soll"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+                if(!pubSubClient.publish("de/heizungsanlage/data/partytemperaturesoll", valueString))
+                  Serial.print("Error while publishing the sparbetrieb value!\n");
+            }
+          // Publish the values
+          for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
+            
+          }
+}
+
 // Getters
 mqttConfiguration Communication::getMQTTConfig() {
   return comm_mqtt_config;

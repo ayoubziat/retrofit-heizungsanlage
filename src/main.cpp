@@ -2,7 +2,6 @@
 #include <Wire.h>
 #include <string.h>
 #include <util.h>
-#include <optolink.h>
 
 using namespace std;
 
@@ -21,7 +20,7 @@ void setup() {
   comm.setup();
   delay(2000);
   optolink.stream = &Serial1;
-  optolink.stream -> begin(4800, SERIAL_8E2);
+  optolink.stream -> begin(4800, SERIAL_8E2, 25, 26);
 }
 
 void loop() {
@@ -50,6 +49,7 @@ void loop() {
       optolink.lastMillis = millis();
       delay(100);
       currentState = READ;
+      break;
     }
     case READ: {
       optolink.rxMsgLen = optolink.datapoints[optolink.datapointIndex].length;
@@ -83,13 +83,15 @@ void loop() {
       if(optolink.rxMsgLen == i){
         //Serial.println("Message received!");
         uint32_t value = readBuffer[3] << 24 | readBuffer[2] << 16 | readBuffer[1] << 8 | readBuffer[0];
-        
+      
         if(optolink.datapoints[optolink.datapointIndex].factor == -1){
           optolink.datapoints[optolink.datapointIndex].value = value;
-        } else{
+        } 
+        else if (optolink.datapoints[optolink.datapointIndex].factor == 10){
           optolink.datapoints[optolink.datapointIndex].value = value / optolink.datapoints[optolink.datapointIndex].factor;
         }
         
+        currentState = IDLE;
         // Nächsten Datenpunkt setzen
         if(optolink.datapointIndex < sizeof(optolink.datapoints) / sizeof(optolink.datapoints[0])){
           ++optolink.datapointIndex;
@@ -100,7 +102,7 @@ void loop() {
           currentState = WAIT;
         }
 
-        currentState = IDLE;
+        
       }
       // Timeout
       if(millis() - optolink.lastMillis > 2 * 1000UL ) {
@@ -111,15 +113,18 @@ void loop() {
       break;
     }
     case WAIT: {
+      comm.loop();
       if(millis() - optolink.lastMillis > 10 * 1000UL) {
         optolink.clearInputStream();
+        for(int j =0; j< (sizeof(optolink.datapoints) / sizeof(optolink.datapoints[0])); j++){
+          comm.publish(optolink.datapoints[j]);
+        }
         currentState = INIT;
       }
       break;
     }
   }
 
-  comm.loop();
   optolink.debugPrinter();
   
 }
