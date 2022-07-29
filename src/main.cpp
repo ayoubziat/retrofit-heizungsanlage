@@ -27,94 +27,27 @@ struct dataPoint{
 };
 
 enum StateMachine { INIT = 0, IDLE, READ, WRITE, LISTEN, WAIT };
-StateMachine currentState = IDLE;
+StateMachine currentState = INIT;
 
 class Optolink {
   public:
-    bool print = true;
+    bool print = false;
     unsigned long lastMillis{0};
     //uint8_t rxBuffer[4];
     uint8_t rxMsgLen{0};
     uint8_t datapoint{0};
     HardwareSerial* stream{nullptr};
-    struct dataPoint datapoints[50] = {
+    struct dataPoint datapoints[10] = {
       {0, 0x00F8, 0x02, -1, "Gerätekennung"},
-      // IST
-      {0, 0x0800, 0x02, 10, "01_Aussentemp_(S1)"},
-      {0, 0x5525, 0x02, 10, "02_Aussentemp_Tiefpass"},
       {0, 0x0802, 0x02, 10, "03_Kesseltemp_(S3)"},
-      {0, 0x0804, 0x02, 10, "04_Speichertemp_(S5)"},
-      {0, 0x0806, 0x02, 10, "05_Speichertemp_2_(S5B)"},
-      {0, 0x0808, 0x02, 10, "06_Abgastemp_(S15)"},
-      {0, 0x080A, 0x02, 10, "07_Rücklauftemp_RLTS(17A)"},
-      {0, 0x080C, 0x02, 10, "08_Vorlauf_IST_temp_(17B)"},
-      {0, 0x2900, 0x02, 10, "09_Vorlauf_IST_temp_M1"},
-      {0, 0x2902, 0x02, 10, "10_Vorlauftemp_M1(minimal)"},
-      {0, 0x0896, 0x02, 10, "11_Raumtemp_A1M1_Tiefpass"},
-      {0, 0x0810, 0x02, 10, "12_Kesseltemp_Tiefpass"},
-      {0, 0x0812, 0x02, 10, "13_Speichertemp_Tiefpass"},
-      //{0, 0x2510, 0x01, -1, "14_Frostgefahr"},
-      // SOLL
-      {0, 0x6300, 0x02, 10, "15_Warmwassertemp_Soll"},
-      //{0, 0x2511, 0x02, 10, "16_Vorlauftemp_Soll_M1"},
       {0, 0x5502, 0x02, 10, "17_Kesseltemp_Soll"},
-      {0, 0x2306, 0x01, 1, "18_Raumtemp_Soll"},
-      // Betriebsart
       {0, 0x2301, 0x01, -1, "19_Betriebsart" },
       {0, 0x2302, 0x01, -1, "20_Sparbetrieb" },
       {0, 0x2303, 0x01, -1, "21_Partybetrieb"},
-      // Heizkennlinie
-      {0, 0x2304, 0x01, 1, "22_Heizkennlinie Niveau"},
-      {0, 0x2305, 0x01, 10, "23_Heizkennlinie Neigung"},
-      // Status
-      {0, 0x083A, 0x01, -1, "24_Aussentemp_Sensor(Status)"},
-      {0, 0x083B, 0x01, -1, "25_Kesseltemp_Sensor(Status)"},
       {0, 0x551E, 0x01, -1, "26_Brennerstatus 0..2"},
-      {0, 0x0842, 0x01, -1, "27_Brenner_Status(Stufe1)"},
-      {0, 0x55E3, 0x01,  2, "28_Leistung_IST(0..100%)"},
-      {0, 0x088A, 0x04, -1, "29_Brennerstarts"},
-      // Pumpen
-      {0, 0x0845, 0x01, -1, "30_Speicherladepumpe 0..1"},
-      {0, 0x0846, 0x01, -1, "31_Zirkulationspumpe 0..1"},
       {0, 0x2906, 0x01, -1, "32_Heizkreispumpe_A1M1"},
-      {0, 0x254C, 0x01,  2, "33_Mischerpos_M1(0..100%)"},
-      // Störung
-      {0, 0x0847, 0x01, -1, "34_Sammelstörung(0..1)"},
-      {0, 0x0883, 0x01, -1, "35_Brennerstörung(0..1)"},
-      // Timer
-      /* {0, 0x3028, 0x08, -1, "36_Zirkulationspumpe 0..1"},
-      {0, 0x2128, 0x08, -1, "37_Heizkreispumpe_A1M1"},
-      {0, 0x2228, 0x08,  2, "38_Mischerpos_M1(0..100%)"}, */
-      // Weitere
-      {0, 0x5527, 0x02, 10, "Aussentemp_gedämpft"},
-      {0, 0x3900, 0x02, 10, "Vorlauftemp_M2"},
-      {0, 0x3902, 0x02, 10, "Rücklauftemp_M2"},
-      //{0, 0xA309, 0x02, 10, "Kesseltemp"},
-      {0, 0x0814, 0x02, 10, "Speichertemp_2(Tiefpass)"},
-      {0, 0x0816, 0x02, 10, "Abgastemp_Tiefpass"},
-      {0, 0x0818, 0x02, 10, "Rücklauftemp_Tiefpass(17A)"},
-      {0, 0x081A, 0x02, 10, "Rück/Vorlauftemp_Tiefpass(17B)"},
-      {0, 0x089F, 0x02, 10, "max_Abgastemperatur"},
-      //{0, 0x2544, 0x02, 10, "Vorlauftemp_Soll_A1M1"},
-      //{0, 0x555A, 0x02, 10, "Kesseltemp_Soll"},
-      {0, 0x0849, 0x01, -1, "Zustand 2. Stufe"},
-      {0, 0x7574, 0x04, 1000, "Oelverbrauch"},
       {0, 0x08A7, 0x04, -1, "Betriebsstunden Stufe 1"},
-      {0, 0x08AB, 0x04, -1, "Betriebsstunden Stufe 2"},
-      {0, 0x5555, 0x01,  2, "Drosselklappenposition (0..100%)"},
-      {0, 0x2500, 0x02, -1, "aktuelle Betriebsart A1M1"},
-      //{0, 0x3500, 0x16, -1, "aktuelle Betriebsart M2"},
-      //{0, 0xA38F, 0x02, -1, "Anlagen Ist-Leistung"},
-      //{0, 0xA305, 0x02, -1, "Kesselleistung"},
-      //{0, 0x08A1, 0x02,  0 | 2, "maximal erreichte Abgastemp. zurücksetzen "},
-      {0, 0x2307, 0x01, -1, "Red. Raumtemperatur Soll"},
       {0, 0x2308, 0x01, -1, "Party Temperatur Soll"},
-      //{0, 0x2501, 0x01, -1, "Betriebsart" },
-      //{0, 0x2502, 0x04, 10, "Timer Aufheizphase"},
-      //{0, 0x2508, 0x01, -1, "Warmwasser Freigabe"},
-      //{0, 0x250A, 0x01, -1, "Heizkreispumpe"},
-      //{0, 0x250B, 0x01, -1, "Raumaufschaltung"},
-      //{0, 0x250C, 0x02, 10, "Raum Solltemperatur"},
     };
 
     void clearInputStream(void){
@@ -152,14 +85,23 @@ class Optolink {
 class Communication {
     public:
         struct mqttConfiguration comm_mqtt_config = {
-          "ssid",
-          "pw",
+          "Ayoubs iPhone",
+          "aziat2294",
           "broker.hivemq.com",
           1883,
           {
-            "de/lab@home/data/temperature", 
-            "de/lab@home/data/humidity",
-            "de/heizungsanlage/data/temperature"
+            // "de/lab@home/data/temperature", 
+            // "de/lab@home/data/humidity",
+            // "de/heizungsanlage/data/geraete",
+            "de/heizungsanlage/data/kesseltemperatureist",
+            "de/heizungsanlage/data/kesseltemperaturesoll",
+            "de/heizungsanlage/data/betriebsart",
+            "de/heizungsanlage/data/sparbetrieb",
+            // "de/heizungsanlage/data/partybetrieb",
+            // "de/heizungsanlage/data/brennerstatus",
+            // "de/heizungsanlage/data/heizkreispumpe",
+            "de/heizungsanlage/data/betriebsstunden",
+            "de/heizungsanlage/data/partytemperaturesoll",
           },
           {
             "de/lab@home/lightControl",
@@ -167,7 +109,6 @@ class Communication {
           }
         };
         Communication(){
-
         };
         void setup(){
           Serial.print("## Comm Setup ## \n");
@@ -278,6 +219,54 @@ class Communication {
 
           pubSubClient.loop();
         };
+
+        void publish(struct dataPoint point){
+          // Convert the values to a char array
+          char valueString[8];
+          // ultoa(value, tempString);
+          sprintf(valueString, "%d", point.value);
+          // Serial.print(point.name);
+          // Serial.printf(" = %d \n",point.value);
+          if(point.name == "03_Kesseltemp_(S3)"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+              if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", valueString))
+                Serial.print("Error while publishing the geraete value!\n");
+            }
+            else if(point.name == "17_Kesseltemp_Soll"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+                if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperaturesoll", valueString))
+                  Serial.print("Error while publishing the kesseltemperatureist value!\n");
+            }
+            else if(point.name == "19_Betriebsart"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+                if(!pubSubClient.publish("de/heizungsanlage/data/betriebsart", valueString))
+                  Serial.print("Error while publishing the kesseltemperaturesoll value!\n");
+            }
+            else if(point.name == "20_Sparbetrieb"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+                if(!pubSubClient.publish("de/heizungsanlage/data/sparbetrieb", valueString))
+                  Serial.print("Error while publishing the betriebsart value!\n");
+            }
+            else if(point.name == "Party Temperatur Soll"){
+              Serial.printf("### Publish: ###\n");
+              Serial.println(point.name);
+              Serial.printf(" = %d \n",point.value);
+                if(!pubSubClient.publish("de/heizungsanlage/data/partytemperaturesoll", valueString))
+                  Serial.print("Error while publishing the sparbetrieb value!\n");
+            }
+          // Publish the values
+          for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
+            
+          }
+        };
 };
 
 Optolink optolink;  
@@ -288,11 +277,10 @@ void setup() {
   comm.setup();
   delay(2000);
   optolink.stream = &Serial1;
-  optolink.stream -> begin(4800, SERIAL_8E2);
+  optolink.stream -> begin(4800, SERIAL_8E2, 25, 26);
 }
 
 void loop() {
-
   switch(currentState){
     case INIT: {
       if(optolink.stream -> available()) {
@@ -308,8 +296,9 @@ void loop() {
       optolink.clearInputStream();
       //memset(optolink.rxBuffer, 0, 4);
       optolink.lastMillis = millis();
-      delay(100);
+      // delay(100);
       currentState = READ;
+      break;
     }
     case READ: {
       optolink.rxMsgLen = optolink.datapoints[optolink.datapoint].length;
@@ -318,6 +307,7 @@ void loop() {
       //Serial.print(buff[1]); Serial.print("\t"); Serial.println(buff[2]);
       optolink.stream -> write(buff, sizeof(buff));
       currentState = LISTEN;
+      delay(100);
       break;
     }
     case WRITE: {
@@ -337,12 +327,13 @@ void loop() {
         
         if(optolink.datapoints[optolink.datapoint].factor == -1){
           optolink.datapoints[optolink.datapoint].value = value;
-        } else{
+        } 
+        else if (optolink.datapoints[optolink.datapoint].factor == 10){
           optolink.datapoints[optolink.datapoint].value = value / optolink.datapoints[optolink.datapoint].factor;
         }
-        
-          // Nächsten Datenpunkt setzen
-        if(optolink.datapoint < sizeof(optolink.datapoints) / sizeof(optolink.datapoints[0])){
+        currentState = IDLE;
+        // Nächsten Datenpunkt setzen
+        if(optolink.datapoint < (sizeof(optolink.datapoints) / sizeof(optolink.datapoints[0]))){
           ++optolink.datapoint;
         } else {
           // Datenpunkte wurden einmal komplett durchlaufen
@@ -350,8 +341,6 @@ void loop() {
           optolink.print = true;
           currentState = WAIT;
         }
-
-        currentState = IDLE;
       }
       // Timeout
       if(millis() - optolink.lastMillis > 2 * 1000UL ) {
@@ -362,7 +351,12 @@ void loop() {
       break;
     }
     case WAIT: {
+      // Serial.println("Wait");
+      comm.loop();
       if(millis() - optolink.lastMillis > 10 * 1000UL) {
+        for(int j =0; j< (sizeof(optolink.datapoints) / sizeof(optolink.datapoints[0])); j++){
+          comm.publish(optolink.datapoints[j]);
+        }
         optolink.clearInputStream();
         currentState = INIT;
       }
@@ -370,9 +364,7 @@ void loop() {
     }
   }
 
-  comm.loop();
   optolink.debugPrinter();
-  
 }
 
 

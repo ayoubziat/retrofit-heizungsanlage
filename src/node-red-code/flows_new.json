@@ -1,0 +1,577 @@
+[
+    {
+        "id": "e0adf31a77c645e4",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "a356cc4a1972d763",
+        "type": "mqtt out",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/lab@home/lightControl",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2596fea3c10cf930",
+        "x": 670,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "b47a9355786833b0",
+        "type": "ui_button",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "On",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "on",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 330,
+        "y": 120,
+        "wires": [
+            [
+                "a356cc4a1972d763"
+            ]
+        ]
+    },
+    {
+        "id": "fbe8b7dd2797aa50",
+        "type": "ui_button",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Off",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "off",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 330,
+        "y": 160,
+        "wires": [
+            [
+                "a356cc4a1972d763"
+            ]
+        ]
+    },
+    {
+        "id": "277c56b33ddf4bd4",
+        "type": "mqtt out",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2596fea3c10cf930",
+        "x": 750,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "a975d49bf49714ed",
+        "type": "ui_switch",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "label": "receive data",
+        "tooltip": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 370,
+        "y": 760,
+        "wires": [
+            [
+                "277c56b33ddf4bd4"
+            ]
+        ]
+    },
+    {
+        "id": "929e2f2be9427e61",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/kesseltemperatureist",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 500,
+        "wires": [
+            [
+                "d86f09c8ac380bf6"
+            ]
+        ]
+    },
+    {
+        "id": "f9c61a40a48f5efe",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Kessel Temperature (IST)",
+        "label": "C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "95",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 830,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "f9a4d79761e89c07",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Temperature",
+        "func": "\nreturn {\"value\": msg.payload};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 560,
+        "wires": [
+            [
+                "df9fa6bf381c8ac2"
+            ]
+        ]
+    },
+    {
+        "id": "df9fa6bf381c8ac2",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Kessel Temperature (soll)",
+        "label": "C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "60",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 830,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "5a16b7122161589b",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/kesseltemperaturesoll",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 560,
+        "wires": [
+            [
+                "f9a4d79761e89c07"
+            ]
+        ]
+    },
+    {
+        "id": "c29a7fef17bdb262",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/betriebsart",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 360,
+        "wires": [
+            [
+                "c7fb245fbc376484"
+            ]
+        ]
+    },
+    {
+        "id": "168f2b1f7d97b7d7",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Status",
+        "func": "\nreturn {\"value\": msg.payload};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 400,
+        "wires": [
+            [
+                "361ad6aac7673aa1"
+            ]
+        ]
+    },
+    {
+        "id": "7a5951497fafae7d",
+        "type": "ui_numeric",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "label": "Betriebsart",
+        "tooltip": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "className": "",
+        "x": 810,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "912b1c11a8e0495b",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/sparbetrieb",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 420,
+        "wires": [
+            [
+                "168f2b1f7d97b7d7"
+            ]
+        ]
+    },
+    {
+        "id": "361ad6aac7673aa1",
+        "type": "ui_numeric",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "label": "Sparbetrieb",
+        "tooltip": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "className": "",
+        "x": 810,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "98c0dc67d0f82de8",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/partytemperaturesoll",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 620,
+        "wires": [
+            [
+                "1227be64983d24d7"
+            ]
+        ]
+    },
+    {
+        "id": "c35672b08d8c2ef6",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Party Temperature (soll)",
+        "label": "C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "60",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 830,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "6e1075f8fce09898",
+        "type": "ui_chart",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 9,
+        "width": "6",
+        "height": "6",
+        "label": "Kessel Temperature Chart",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "95",
+        "removeOlder": "600",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "1",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 830,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d86f09c8ac380bf6",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Temperature",
+        "func": "\nreturn {\"value\": msg.payload};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 500,
+        "wires": [
+            [
+                "6e1075f8fce09898",
+                "f9c61a40a48f5efe"
+            ]
+        ]
+    },
+    {
+        "id": "1227be64983d24d7",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Temperature",
+        "func": "\nreturn {\"value\": msg.payload};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 620,
+        "wires": [
+            [
+                "c35672b08d8c2ef6"
+            ]
+        ]
+    },
+    {
+        "id": "ef188dfb0cccd8dd",
+        "type": "ui_text",
+        "z": "e0adf31a77c645e4",
+        "group": "e38e2d053aa9a3b8",
+        "order": 9,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Betriebsart",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "className": "",
+        "x": 810,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c7fb245fbc376484",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Status",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 360,
+        "wires": [
+            [
+                "7a5951497fafae7d",
+                "ef188dfb0cccd8dd"
+            ]
+        ]
+    },
+    {
+        "id": "2596fea3c10cf930",
+        "type": "mqtt-broker",
+        "name": "HiveMq",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "e38e2d053aa9a3b8",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "f2d9053b76d56956",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f2d9053b76d56956",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
