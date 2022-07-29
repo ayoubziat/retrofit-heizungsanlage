@@ -6,6 +6,9 @@
 
 using namespace std;
 
+bool write_msg = true;
+unsigned long write_millis = 0;
+
 enum StateMachine { INIT = 0, IDLE, READ, WRITE, LISTEN, WAIT };
 StateMachine currentState = INIT;
 
@@ -29,7 +32,14 @@ void loop() {
         if(optolink.stream -> read() == 0x05){
           uint8_t buff[] = {0x01};
           optolink.stream -> write(buff, sizeof(buff));
-          currentState = IDLE;
+          
+          
+          if(write_msg && (millis() - write_millis > 10 * 1000UL)){
+            currentState = WRITE;
+          }else {
+            currentState = IDLE;
+          }
+          
         }
       }
       break;
@@ -51,6 +61,15 @@ void loop() {
       break;
     }
     case WRITE: {
+      write_msg = false;
+      uint8_t buff[] = { 0xF4, 0x23, 0x08, 0x13, 0x01 };
+      optolink.stream -> write(buff, sizeof(buff));
+      delay(500);
+      while(optolink.stream -> available() > 0) {
+        Serial.print("Response: "); Serial.print(optolink.stream -> read());
+      }
+      Serial.println();
+      currentState = INIT;
       break;
     }
     case LISTEN: {
