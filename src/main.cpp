@@ -37,7 +37,7 @@ class Optolink {
     uint8_t rxMsgLen{0};
     uint8_t datapoint{0};
     HardwareSerial* stream{nullptr};
-    struct dataPoint datapoints[63] = {
+    struct dataPoint datapoints[50] = {
       {0, 0x00F8, 0x02, -1, "Gerätekennung"},
       // IST
       {0, 0x0800, 0x02, 10, "01_Aussentemp_(S1)"},
@@ -49,14 +49,14 @@ class Optolink {
       {0, 0x080A, 0x02, 10, "07_Rücklauftemp_RLTS(17A)"},
       {0, 0x080C, 0x02, 10, "08_Vorlauf_IST_temp_(17B)"},
       {0, 0x2900, 0x02, 10, "09_Vorlauf_IST_temp_M1"},
-      {0, 0x2900, 0x02, 10, "10_Vorlauftemp_M1(minimal)"},
+      {0, 0x2902, 0x02, 10, "10_Vorlauftemp_M1(minimal)"},
       {0, 0x0896, 0x02, 10, "11_Raumtemp_A1M1_Tiefpass"},
       {0, 0x0810, 0x02, 10, "12_Kesseltemp_Tiefpass"},
       {0, 0x0812, 0x02, 10, "13_Speichertemp_Tiefpass"},
-      {0, 0x2510, 0x01, -1, "14_Frostgefahr"},
+      //{0, 0x2510, 0x01, -1, "14_Frostgefahr"},
       // SOLL
       {0, 0x6300, 0x02, 10, "15_Warmwassertemp_Soll"},
-      {0, 0x2511, 0x02, 10, "16_Vorlauftemp_Soll_M1"},
+      //{0, 0x2511, 0x02, 10, "16_Vorlauftemp_Soll_M1"},
       {0, 0x5502, 0x02, 10, "17_Kesseltemp_Soll"},
       {0, 0x2306, 0x01, 1, "18_Raumtemp_Soll"},
       // Betriebsart
@@ -89,14 +89,14 @@ class Optolink {
       {0, 0x5527, 0x02, 10, "Aussentemp_gedämpft"},
       {0, 0x3900, 0x02, 10, "Vorlauftemp_M2"},
       {0, 0x3902, 0x02, 10, "Rücklauftemp_M2"},
-      {0, 0xA309, 0x02, 10, "Kesseltemp"},
+      //{0, 0xA309, 0x02, 10, "Kesseltemp"},
       {0, 0x0814, 0x02, 10, "Speichertemp_2(Tiefpass)"},
       {0, 0x0816, 0x02, 10, "Abgastemp_Tiefpass"},
       {0, 0x0818, 0x02, 10, "Rücklauftemp_Tiefpass(17A)"},
       {0, 0x081A, 0x02, 10, "Rück/Vorlauftemp_Tiefpass(17B)"},
       {0, 0x089F, 0x02, 10, "max_Abgastemperatur"},
-      {0, 0x2544, 0x02, 10, "Vorlauftemp_Soll_A1M1"},
-      {0, 0x555A, 0x02, 10, "Kesseltemp_Soll"},
+      //{0, 0x2544, 0x02, 10, "Vorlauftemp_Soll_A1M1"},
+      //{0, 0x555A, 0x02, 10, "Kesseltemp_Soll"},
       {0, 0x0849, 0x01, -1, "Zustand 2. Stufe"},
       {0, 0x7574, 0x04, 1000, "Oelverbrauch"},
       {0, 0x08A7, 0x04, -1, "Betriebsstunden Stufe 1"},
@@ -104,17 +104,17 @@ class Optolink {
       {0, 0x5555, 0x01,  2, "Drosselklappenposition (0..100%)"},
       {0, 0x2500, 0x02, -1, "aktuelle Betriebsart A1M1"},
       //{0, 0x3500, 0x16, -1, "aktuelle Betriebsart M2"},
-      {0, 0xA38F, 0x02, -1, "Anlagen Ist-Leistung"},
-      {0, 0xA305, 0x02, -1, "Kesselleistung"},
+      //{0, 0xA38F, 0x02, -1, "Anlagen Ist-Leistung"},
+      //{0, 0xA305, 0x02, -1, "Kesselleistung"},
       //{0, 0x08A1, 0x02,  0 | 2, "maximal erreichte Abgastemp. zurücksetzen "},
       {0, 0x2307, 0x01, -1, "Red. Raumtemperatur Soll"},
       {0, 0x2308, 0x01, -1, "Party Temperatur Soll"},
-      {0, 0x2501, 0x01, -1, "Betriebsart" },
-      {0, 0x2502, 0x04, 10, "Timer Aufheizphase"},
-      {0, 0x2508, 0x01, -1, "Warmwasser Freigabe"},
-      {0, 0x250A, 0x01, -1, "Heizkreispumpe"},
-      {0, 0x250B, 0x01, -1, "Raumaufschaltung"},
-      {0, 0x250C, 0x02, 10, "Raum Solltemperatur"},
+      //{0, 0x2501, 0x01, -1, "Betriebsart" },
+      //{0, 0x2502, 0x04, 10, "Timer Aufheizphase"},
+      //{0, 0x2508, 0x01, -1, "Warmwasser Freigabe"},
+      //{0, 0x250A, 0x01, -1, "Heizkreispumpe"},
+      //{0, 0x250B, 0x01, -1, "Raumaufschaltung"},
+      //{0, 0x250C, 0x02, 10, "Raum Solltemperatur"},
     };
 
     void clearInputStream(void){

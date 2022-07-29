@@ -45,10 +45,6 @@ extern void printSerialNumber();
 //#define TX_PIN 5
 //#define RX_PIN 6
 
-// esp32 NodeMCU
-#define TX_PIN 10
-#define RX_PIN 9
-
 #define TIME_INTERVAL 5000
 
 // LED Pin
