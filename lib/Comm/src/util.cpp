@@ -12,8 +12,7 @@ CRGB leds[NUM_LEDS];
 
 static mqttConfiguration* CONFIG;
 
-Communication::Communication(struct mqttConfiguration config)
-{
+Communication::Communication(struct mqttConfiguration config){
     comm_mqtt_config = config;
     CONFIG = &comm_mqtt_config;
 }
@@ -97,19 +96,19 @@ void Communication::mqttCallback(char* topic, byte* message, unsigned int length
       Serial.print("Message couldn't be handled\n");
     }
   } 
-  else if (string(topic) == "de/heizungsanlage/data"){
-    if(messageTemp == "true"){
-      Serial.print("Subscribe to topic \"de/heizungsanlage/data/+\"\n");
-      pubSubClient.subscribe("de/heizungsanlage/data/+");
-    }
-    else if(messageTemp == "false"){
-      Serial.print("Unsubscribe from topic \"de/heizungsanlage/data/+\"\n");
-      pubSubClient.unsubscribe("de/heizungsanlage/data/+");
-    }
-    else{
-      Serial.print("Message couldn't be handled\n");
-    }
-  } 
+  // else if (string(topic) == "de/lab@home/data"){
+  //   if(messageTemp == "true"){
+  //     Serial.print("Unsubscribe to topic \"de/heizungsanlage/data/+\"\n");
+  //     pubSubClient.unsubscribe("de/heizungsanlage/data/+");
+  //   }
+  //   else if(messageTemp == "false"){
+  //     Serial.print("Subscribe from topic \"de/heizungsanlage/data/+\"\n");
+  //     pubSubClient.subscribe("de/heizungsanlage/data/+");
+  //   }
+  //   else{
+  //     Serial.print("Message couldn't be handled\n");
+  //   }
+  // } 
   else{
     // ToDo
   }
@@ -135,76 +134,63 @@ void Communication::loop(){
 	// 	char humString[8];
 	// 	dtostrf(humidity, 1, 2, humString);
 	// 	printf("Temp=%f C, Humidity= %f % \n", temperature, humidity);
-
+  //   char json_Content[60];
+	// 	sprintf(json_Content, "{\"humidity\":\"%f\", \"temperature\":\"%f\"}", humidity, temperature);
+	// 	Serial.print("JSON-String: ");
+	// 	Serial.println(json_Content);
   //   // Publish the values
-  //   for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
-  //     if(topic.find("temperature") != string::npos){
-  //         if(!pubSubClient.publish(topic.c_str(), tempString))
-	// 	        printf("Error while publishing the temperature value!\n");
-  //     }
-  //     else if(topic.find("humidity") != string::npos){
-  //         if(!pubSubClient.publish(topic.c_str(), humString))
-	// 	        printf("Error while publishing the humidity value!\n");
-  //     }
-  //     else {
-  //       // ToDo
-  //     }
-  //   }
+  //   if(!pubSubClient.publish(this->comm_mqtt_config.mqtt_publish_topics.front().c_str(), json_Content))
+	// 	  printf("Error while publishing the hdc Sensor values!\n");
+    
+  //   if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", tempString))
+	// 	  printf("Error while publishing the hdc Sensor values!\n");
 	// }
-  //delay(2500);
+  // delay(3000);
 }
 
 void Communication::publish(struct dataPoint point){
-          // Convert the values to a char array
-          char valueString[8];
-          // ultoa(value, tempString);
-          sprintf(valueString, "%d", point.value);
-          // Serial.print(point.name);
-          // Serial.printf(" = %d \n",point.value);
-          if(point.name == "03_Kesseltemp_(S3)"){
-              Serial.printf("### Publish: ###\n");
-              Serial.println(point.name);
-              Serial.printf(" = %d \n",point.value);
-              if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", valueString))
-                Serial.print("Error while publishing the geraete value!\n");
-            }
-            else if(point.name == "17_Kesseltemp_Soll"){
-              Serial.printf("### Publish: ###\n");
-              Serial.println(point.name);
-              Serial.printf(" = %d \n",point.value);
-                if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperaturesoll", valueString))
-                  Serial.print("Error while publishing the kesseltemperatureist value!\n");
-            }
-            else if(point.name == "19_Betriebsart"){
-              Serial.printf("### Publish: ###\n");
-              Serial.println(point.name);
-              Serial.printf(" = %d \n",point.value);
-                if(!pubSubClient.publish("de/heizungsanlage/data/betriebsart", valueString))
-                  Serial.print("Error while publishing the kesseltemperaturesoll value!\n");
-            }
-            else if(point.name == "20_Sparbetrieb"){
-              Serial.printf("### Publish: ###\n");
-              Serial.println(point.name);
-              Serial.printf(" = %d \n",point.value);
-                if(!pubSubClient.publish("de/heizungsanlage/data/sparbetrieb", valueString))
-                  Serial.print("Error while publishing the betriebsart value!\n");
-            }
-            else if(point.name == "Party Temperatur Soll"){
-              Serial.printf("### Publish: ###\n");
-              Serial.println(point.name);
-              Serial.printf(" = %d \n",point.value);
-                if(!pubSubClient.publish("de/heizungsanlage/data/partytemperaturesoll", valueString))
-                  Serial.print("Error while publishing the sparbetrieb value!\n");
-            }
-          // Publish the values
-          for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
-            
-          }
-}
-
-// Getters
-mqttConfiguration Communication::getMQTTConfig() {
-  return comm_mqtt_config;
+  // Convert the values to a char array
+  char valueString[8];
+  sprintf(valueString, "%d", point.value);
+  if(point.name == "03_Kesseltemp_(S3)"){
+      Serial.printf("### Publish: ###\n");
+      Serial.println(point.name);
+      Serial.printf(" = %d \n",point.value);
+      if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", valueString))
+        Serial.print("Error while publishing the kesseltemperatureist value!\n");
+  }
+  else if(point.name == "17_Kesseltemp_Soll"){
+    Serial.printf("### Publish: ###\n");
+    Serial.println(point.name);
+    Serial.printf(" = %d \n",point.value);
+      if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperaturesoll", valueString))
+        Serial.print("Error while publishing the kesseltemperaturesoll value!\n");
+  }
+  else if(point.name == "19_Betriebsart"){
+    Serial.printf("### Publish: ###\n");
+    Serial.println(point.name);
+    Serial.printf(" = %d \n",point.value);
+      if(!pubSubClient.publish("de/heizungsanlage/data/betriebsart", valueString))
+        Serial.print("Error while publishing the betriebsart value!\n");
+  }
+  else if(point.name == "20_Sparbetrieb"){
+    Serial.printf("### Publish: ###\n");
+    Serial.println(point.name);
+    Serial.printf(" = %d \n",point.value);
+      if(!pubSubClient.publish("de/heizungsanlage/data/sparbetrieb", valueString))
+        Serial.print("Error while publishing the sparbetrieb value!\n");
+  }
+  else if(point.name == "Party Temperatur Soll"){
+    Serial.printf("### Publish: ###\n");
+    Serial.println(point.name);
+    Serial.printf(" = %d \n",point.value);
+      if(!pubSubClient.publish("de/heizungsanlage/data/partytemperaturesoll", valueString))
+        Serial.print("Error while publishing the partytemperaturesoll value!\n");
+  }
+  // Publish the values
+  for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
+    
+  }
 }
 
 

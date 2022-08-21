@@ -7,7 +7,7 @@
 #include <WiFi.h>
 #include <iostream> 
 #include <list>
-#include <optolink.h>
+#include "optolink.h"
 #include "credentials.h"
 
 using namespace std;
@@ -32,7 +32,6 @@ class Communication {
         void setup();
         void setup_wifi();
         void reconnect();
-        mqttConfiguration getMQTTConfig();
         static void mqttCallback(char* topic, byte* message, unsigned int length);
         void loop();
         void publish(struct dataPoint point);
@@ -51,13 +50,11 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
   "broker.hivemq.com",
   1883,
   {
-    "de/lab@home/data/temperature", 
-    "de/lab@home/data/humidity",
-    "de/heizungsanlage/data/temperature"
+    "de/lab@home/hdcSensor/data", 
   },
   {
     "de/lab@home/lightControl",
-    "de/heizungsanlage/data",
+    "de/lab@home/data",
   }
 };
 
@@ -66,8 +63,8 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
 //#define RX_PIN 6
 
 // esp32 NodeMCU
-#define TX_PIN 10
-#define RX_PIN 9
+#define TX_PIN 26
+#define RX_PIN 25
 
 #define TIME_INTERVAL 5000
 

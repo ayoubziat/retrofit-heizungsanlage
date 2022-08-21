@@ -20,7 +20,7 @@ void setup() {
   comm.setup();
   delay(2000);
   optolink.stream = &Serial1;
-  optolink.stream -> begin(4800, SERIAL_8E2, 25, 26);
+  optolink.stream -> begin(4800, SERIAL_8E2, RX_PIN, TX_PIN);
 }
 
 void loop() {
