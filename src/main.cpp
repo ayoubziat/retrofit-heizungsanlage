@@ -14,6 +14,7 @@ StateMachine currentState = INIT;
 
 Optolink optolink;  
 Communication comm(MQTT_CONFIG_EXAMPLE);
+DHTSensor dhtSensor;
 
 void setup() {
   Serial.begin(57600);
