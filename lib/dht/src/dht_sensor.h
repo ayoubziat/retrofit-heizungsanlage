@@ -5,15 +5,14 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
-#define DHTPIN 19
+#define DHTPIN 0
 #define DHTTYPE DHT11
 
 class DHTSensor{
     public:
-        //DHTSensor();
         void setup();
-        void measureTemperature();
-        void measureHumidity();
+        float measureTemperature();
+        float measureHumidity();
 };
 
 #endif // DHT_SENSOR_H

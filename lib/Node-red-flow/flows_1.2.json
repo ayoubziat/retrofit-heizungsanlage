@@ -1,0 +1,1073 @@
+[
+    {
+        "id": "e0adf31a77c645e4",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "a356cc4a1972d763",
+        "type": "mqtt out",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/lab@home/lightControl",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2596fea3c10cf930",
+        "x": 670,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "b47a9355786833b0",
+        "type": "ui_button",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "On",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "on",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 330,
+        "y": 120,
+        "wires": [
+            [
+                "a356cc4a1972d763"
+            ]
+        ]
+    },
+    {
+        "id": "fbe8b7dd2797aa50",
+        "type": "ui_button",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Off",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "off",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 330,
+        "y": 160,
+        "wires": [
+            [
+                "a356cc4a1972d763"
+            ]
+        ]
+    },
+    {
+        "id": "929e2f2be9427e61",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/kesseltemperatureist",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 500,
+        "wires": [
+            [
+                "d86f09c8ac380bf6",
+                "942d524c9454cd87"
+            ]
+        ]
+    },
+    {
+        "id": "f9c61a40a48f5efe",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "2e75bcfda35960db",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Kessel Temperature (IST)",
+        "label": "C",
+        "format": "{{msg.payload}}",
+        "min": 0,
+        "max": "95",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 830,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "f9a4d79761e89c07",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Temperature",
+        "func": "\nreturn {\"value\": msg.payload};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 600,
+        "wires": [
+            [
+                "df9fa6bf381c8ac2"
+            ]
+        ]
+    },
+    {
+        "id": "df9fa6bf381c8ac2",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "2e75bcfda35960db",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Kessel Temperature (soll)",
+        "label": "C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "60",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 830,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "5a16b7122161589b",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/kesseltemperaturesoll",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 600,
+        "wires": [
+            [
+                "f9a4d79761e89c07"
+            ]
+        ]
+    },
+    {
+        "id": "c29a7fef17bdb262",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/betriebsart",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 340,
+        "wires": [
+            [
+                "c7fb245fbc376484"
+            ]
+        ]
+    },
+    {
+        "id": "168f2b1f7d97b7d7",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Status",
+        "func": "\nreturn {\"value\": msg.payload};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 420,
+        "wires": [
+            [
+                "361ad6aac7673aa1"
+            ]
+        ]
+    },
+    {
+        "id": "7a5951497fafae7d",
+        "type": "ui_numeric",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "label": "Betriebsart",
+        "tooltip": "",
+        "group": "2e75bcfda35960db",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "className": "",
+        "x": 810,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "912b1c11a8e0495b",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/sparbetrieb",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 420,
+        "wires": [
+            [
+                "168f2b1f7d97b7d7"
+            ]
+        ]
+    },
+    {
+        "id": "361ad6aac7673aa1",
+        "type": "ui_numeric",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "label": "Sparbetrieb",
+        "tooltip": "",
+        "group": "2e75bcfda35960db",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "className": "",
+        "x": 810,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "98c0dc67d0f82de8",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/partytemperaturesoll",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 680,
+        "wires": [
+            [
+                "1227be64983d24d7"
+            ]
+        ]
+    },
+    {
+        "id": "c35672b08d8c2ef6",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "2e75bcfda35960db",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Party Temperature (soll)",
+        "label": "C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "60",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 830,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "6e1075f8fce09898",
+        "type": "ui_chart",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "2e75bcfda35960db",
+        "order": 9,
+        "width": "6",
+        "height": "6",
+        "label": "Kessel Temperature Chart",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "95",
+        "removeOlder": "1",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 830,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d86f09c8ac380bf6",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Temperature",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 480,
+        "wires": [
+            [
+                "6e1075f8fce09898",
+                "f9c61a40a48f5efe"
+            ]
+        ]
+    },
+    {
+        "id": "1227be64983d24d7",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Temperature",
+        "func": "\nreturn {\"value\": msg.payload};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 680,
+        "wires": [
+            [
+                "c35672b08d8c2ef6"
+            ]
+        ]
+    },
+    {
+        "id": "c7fb245fbc376484",
+        "type": "function",
+        "z": "e0adf31a77c645e4",
+        "name": "Status",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 340,
+        "wires": [
+            [
+                "7a5951497fafae7d"
+            ]
+        ]
+    },
+    {
+        "id": "c3f143928ceb285d",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/lab@home/hdcSensor/data",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 820,
+        "wires": [
+            [
+                "1bcb87ac7bb491a5",
+                "1fb1e2abea5df760"
+            ]
+        ]
+    },
+    {
+        "id": "e103b63047e37546",
+        "type": "ui_chart",
+        "z": "e0adf31a77c645e4",
+        "name": "Temperature Chart",
+        "group": "e38e2d053aa9a3b8",
+        "order": 9,
+        "width": "6",
+        "height": "6",
+        "label": "Temperature Chart",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "60",
+        "removeOlder": "1",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 810,
+        "y": 800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a2e87baf7ab3aed6",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Temperature",
+        "label": "C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "70",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "30",
+        "seg2": "40",
+        "className": "",
+        "x": 790,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "229796604f37390a",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Humidity",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 780,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "1bcb87ac7bb491a5",
+        "type": "change",
+        "z": "e0adf31a77c645e4",
+        "name": "Lab@Home's Temperature",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.temperature",
+                "tot": "msg",
+                "dc": true
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 540,
+        "y": 780,
+        "wires": [
+            [
+                "e103b63047e37546",
+                "a2e87baf7ab3aed6"
+            ]
+        ]
+    },
+    {
+        "id": "1fb1e2abea5df760",
+        "type": "change",
+        "z": "e0adf31a77c645e4",
+        "name": "Lab@Home's Humidity",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.humidity",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 520,
+        "y": 860,
+        "wires": [
+            [
+                "229796604f37390a"
+            ]
+        ]
+    },
+    {
+        "id": "942d524c9454cd87",
+        "type": "switch",
+        "z": "e0adf31a77c645e4",
+        "name": "Warn on High Values",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "90",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 560,
+        "y": 540,
+        "wires": [
+            [
+                "23471114ea301a55"
+            ]
+        ]
+    },
+    {
+        "id": "23471114ea301a55",
+        "type": "template",
+        "z": "e0adf31a77c645e4",
+        "name": "Alert Msg",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "Alert : Critical Value Detected {{payload}}",
+        "output": "str",
+        "x": 800,
+        "y": 540,
+        "wires": [
+            [
+                "aa3829cb961e82ee"
+            ]
+        ]
+    },
+    {
+        "id": "aa3829cb961e82ee",
+        "type": "ui_toast",
+        "z": "e0adf31a77c645e4",
+        "position": "top right",
+        "displayTime": "3",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "",
+        "x": 1050,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "4675576e084bfedd",
+        "type": "mqtt in",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/lab@home/dht/data",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "2596fea3c10cf930",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 940,
+        "wires": [
+            [
+                "c66d75817835c62c",
+                "362f5a35b2f0ca81"
+            ]
+        ]
+    },
+    {
+        "id": "c66d75817835c62c",
+        "type": "change",
+        "z": "e0adf31a77c645e4",
+        "name": "DHT Temperature",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.dhttemperature",
+                "tot": "msg",
+                "dc": true
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 920,
+        "wires": [
+            [
+                "66cbbf4e5aac5417"
+            ]
+        ]
+    },
+    {
+        "id": "362f5a35b2f0ca81",
+        "type": "change",
+        "z": "e0adf31a77c645e4",
+        "name": "DHT Humidity",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.dhthumidity",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 980,
+        "wires": [
+            [
+                "ba99e9eb402b5faa"
+            ]
+        ]
+    },
+    {
+        "id": "66cbbf4e5aac5417",
+        "type": "ui_chart",
+        "z": "e0adf31a77c645e4",
+        "name": "Temperature Chart",
+        "group": "02cd12cd160da267",
+        "order": 9,
+        "width": "6",
+        "height": "6",
+        "label": "DHT Temperature Chart",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "60",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 810,
+        "y": 920,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ba99e9eb402b5faa",
+        "type": "ui_gauge",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "group": "02cd12cd160da267",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "DHT Humidity",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 800,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "52fe3d5f64657abf",
+        "type": "ui_switch",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "label": "Publish DHT measurements",
+        "tooltip": "",
+        "group": "02cd12cd160da267",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 340,
+        "y": 1080,
+        "wires": [
+            [
+                "f08652d111105cc9"
+            ]
+        ]
+    },
+    {
+        "id": "f08652d111105cc9",
+        "type": "mqtt out",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/lab@home/dht/publishData",
+        "qos": "2",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2596fea3c10cf930",
+        "x": 690,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "6fe05fc06a7f82bb",
+        "type": "ui_switch",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "label": "Publish Heinzungsanlage data",
+        "tooltip": "",
+        "group": "2e75bcfda35960db",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 250,
+        "y": 260,
+        "wires": [
+            [
+                "f4c18176a27a2cd5"
+            ]
+        ]
+    },
+    {
+        "id": "f4c18176a27a2cd5",
+        "type": "mqtt out",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/heizungsanlage/data/publishData",
+        "qos": "2",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2596fea3c10cf930",
+        "x": 690,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "8403658cd60f3a21",
+        "type": "ui_switch",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "label": "Publish HDC measurements",
+        "tooltip": "",
+        "group": "e38e2d053aa9a3b8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 340,
+        "y": 1160,
+        "wires": [
+            [
+                "3c8cbf339b1b4b60"
+            ]
+        ]
+    },
+    {
+        "id": "3c8cbf339b1b4b60",
+        "type": "mqtt out",
+        "z": "e0adf31a77c645e4",
+        "name": "",
+        "topic": "de/lab@home/hdc/publishData",
+        "qos": "2",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2596fea3c10cf930",
+        "x": 690,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "2596fea3c10cf930",
+        "type": "mqtt-broker",
+        "name": "HiveMq",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "e38e2d053aa9a3b8",
+        "type": "ui_group",
+        "name": "Lab@Home",
+        "tab": "f2d9053b76d56956",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2e75bcfda35960db",
+        "type": "ui_group",
+        "name": "Heinzungsanlage",
+        "tab": "f2d9053b76d56956",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "02cd12cd160da267",
+        "type": "ui_group",
+        "name": "DHT Sensor",
+        "tab": "f2d9053b76d56956",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f2d9053b76d56956",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]

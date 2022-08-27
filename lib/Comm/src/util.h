@@ -9,6 +9,7 @@
 #include <list>
 #include "optolink.h"
 #include "credentials.h"
+#include "dht_sensor.h"
 
 using namespace std;
 
@@ -50,11 +51,14 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
   "broker.hivemq.com",
   1883,
   {
-    "de/lab@home/hdcSensor/data", 
+    "de/lab@home/hdcSensor/data",
+    "de/lab@home/dht/data"
   },
   {
     "de/lab@home/lightControl",
-    "de/lab@home/data",
+    "de/lab@home/dht/publishData",
+    "de/lab@home/hdc/publishData",
+    "de/heizungsanlage/data/publishData"
   }
 };
 

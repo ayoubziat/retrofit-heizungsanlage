@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include "dht_sensor.h"
 #include <Wire.h>
 #include <string.h>
 #include <util.h>
@@ -14,7 +13,6 @@ StateMachine currentState = INIT;
 
 Optolink optolink;  
 Communication comm(MQTT_CONFIG_EXAMPLE);
-DHTSensor dhtSensor;
 
 void setup() {
   Serial.begin(57600);
@@ -23,7 +21,6 @@ void setup() {
   delay(2000);
   optolink.stream = &Serial1;
   optolink.stream -> begin(4800, SERIAL_8E2, RX_PIN, TX_PIN);
-  dhtSensor.setup();
 }
 
 void loop() {
@@ -129,8 +126,5 @@ void loop() {
   }
 
   optolink.debugPrinter();
-  dhtSensor.measureHumidity();
-  // Read temperature as Celsius (the default)
-  dhtSensor.measureTemperature();
-  
+  comm.loop();
 }
