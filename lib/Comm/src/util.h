@@ -3,10 +3,12 @@
 
 #include <FastLED.h>
 #include <PubSubClient.h>
+#include <WiFiMulti.h>
 #include <ClosedCube_HDC1080.h>
-#include <WiFi.h>
 #include <iostream> 
 #include <list>
+#include <InfluxDbClient.h>
+#include <InfluxDbCloud.h>
 #include "optolink.h"
 #include "credentials.h"
 #include "dht_sensor.h"
@@ -19,8 +21,6 @@ struct mqttConfiguration {
     const char* password;
     const char* mqtt_server;
     int mqtt_port;
-    // const char* mqtt_publish_topic;
-    // const char* mqtt_subscribe_topic;
     list<string> mqtt_publish_topics;
     list<string> mqtt_subscribe_topics;
 };
@@ -70,7 +70,7 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
 #define TX_PIN 26
 #define RX_PIN 25
 
-#define TIME_INTERVAL 5000
+#define TIME_INTERVAL 10000
 
 constexpr int NUM_LEDS{4};
 constexpr int DATA_PIN{15};

@@ -4,8 +4,17 @@ ClosedCube_HDC1080 hdc1080;
 WiFiClient deviceClient;
 DHTSensor dhtSensor;
 PubSubClient pubSubClient(deviceClient);
+WiFiMulti wifiMulti;
 
-int64_t nextTimeHDC1080{0};
+// InfluxDB client instance with preconfigured InfluxCloud certificate
+InfluxDBClient influxDBClient(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLUXDB_TOKEN, InfluxDbCloud2CACert);
+
+// Data points
+Point dhtSensorPoint("DHTSensor");
+Point hdcSensorPoint("HDCSensor");
+Point heizungsanlagePoint("Heinzungsanlage");
+
+int64_t nextTime{0};
 CRGB leds[NUM_LEDS];
 
 static mqttConfiguration* CONFIG;
@@ -25,6 +34,25 @@ void Communication::setup(){
   delay(1000);
   Communication::setup_wifi();
 
+  // Add tags
+  dhtSensorPoint.addTag("device", DEVICE);
+  hdcSensorPoint.addTag("device", DEVICE);
+  heizungsanlagePoint.addTag("device", DEVICE);
+
+  // Accurate time is necessary for certificate validation and writing in batches
+  // For the fastest time sync find NTP servers in your area: https://www.pool.ntp.org/zone/
+  // Syncing progress and the time will be printed to Serial.
+  timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
+
+  // Check server connection
+  if (influxDBClient.validateConnection()) {
+    Serial.print("Connected to InfluxDB: ");
+    Serial.println(influxDBClient.getServerUrl());
+  } else {
+    Serial.print("InfluxDB connection failed: ");
+    Serial.println(influxDBClient.getLastErrorMessage());
+  }
+
   pubSubClient.setServer(comm_mqtt_config.mqtt_server, comm_mqtt_config.mqtt_port);
 	pubSubClient.setCallback(mqttCallback);
   Communication::reconnect();
@@ -37,27 +65,31 @@ void Communication::setup_wifi() {
   this->commSerial->print("### Setup WiFi ###\n");
   this->commSerial->print("Connecting to ");
   this->commSerial->println(comm_mqtt_config.ssid);
-  WiFi.begin(comm_mqtt_config.ssid, comm_mqtt_config.password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+  // Setup wifi connection
+  WiFi.mode(WIFI_STA);
+  // WiFi.begin(comm_mqtt_config.ssid, comm_mqtt_config.password);
+  wifiMulti.addAP(comm_mqtt_config.ssid, comm_mqtt_config.password);
+  // Connect to WiFi
+  while (wifiMulti.run() != WL_CONNECTED){
     this->commSerial->print(".");
+    delay(100);
   }
   char buf[16];
   IPAddress ip = WiFi.localIP();
   sprintf(buf, "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
-  this->commSerial->printf("\nWiFi connected! IP address: %s\n\n", buf);
+  this->commSerial->printf("\nWiFi connected! IP address: %s\n", buf);
   Serial.println("-----------------------------------------------");
 }
 
 void Communication::reconnect() {
   Serial.println("-----------------------------------------------");
-  this->commSerial->print("## Reconnect ##\n");
+  this->commSerial->println("## Reconnect ##");
   // Loop until we're reconnected
   while (!pubSubClient.connected()) {
     this->commSerial->print("Attempting MQTT connection...\n\t");
     // Attempt to connect
     if (pubSubClient.connect("Lab@home")) {
-      this->commSerial->print("Device connected\n");
+      this->commSerial->println("Device connected");
       // Subscribe to topics
       for(string mqtt_topic: comm_mqtt_config.mqtt_subscribe_topics){
         this->commSerial->printf("Subscribing to MQTT topic: %s\n", mqtt_topic.c_str());
@@ -141,16 +173,27 @@ void Communication::mqttCallback(char* topic, byte* message, unsigned int length
 }
 
 void Communication::loop(){
-  if (!pubSubClient.connected()) {
+  // Check WiFi connection and reconnect if needed
+  if (wifiMulti.run() != WL_CONNECTED) {
+    Serial.println("Wifi connection lost");
+    while (wifiMulti.run() != WL_CONNECTED){
+      this->commSerial->print(".");
+      delay(100);
+    }
+  }
+  
+  if (!pubSubClient.connected())
     Communication::reconnect();
-	}
 
 	pubSubClient.loop();
 	long current_time = millis();
-	if (current_time - nextTimeHDC1080 > TIME_INTERVAL) {
-		nextTimeHDC1080 = current_time;
+	if (current_time - nextTime > TIME_INTERVAL) {
+		nextTime = current_time;
 
     if (PUBLISH_DHT_DATA){
+      // Clear fields for reusing the point. Tags will remain untouched
+      dhtSensorPoint.clearFields();
+
       float dhtHumidity = dhtSensor.measureHumidity();
       float dhtTemp = dhtSensor.measureTemperature();
       // Check if read failed.
@@ -164,10 +207,22 @@ void Communication::loop(){
         Serial.println(dht_json_Content);
         if(!pubSubClient.publish("de/lab@home/dht/data", dht_json_Content))
           printf("Error while publishing the DHT Sensor values!\n");
+
+        // Store measured value into point
+        dhtSensorPoint.addField("temperature", dhtTemp);
+        dhtSensorPoint.addField("humidity", dhtHumidity);
+        // Write data point
+        if (!influxDBClient.writePoint(dhtSensorPoint)){
+          Serial.print("InfluxDB writing DHT Sensor values failed: ");
+          Serial.println(influxDBClient.getLastErrorMessage());
+        }
       }
     }
 
     if (PUBLISH_HDC_DATA){
+      // Clear fields for reusing the point. Tags will remain untouched
+      hdcSensorPoint.clearFields();
+
       float hdcTemperature = hdc1080.readTemperature(); 
       float hdcHumidity = hdc1080.readHumidity();
       char hdc_json_Content[60];
@@ -182,40 +237,78 @@ void Communication::loop(){
       dtostrf(hdcTemperature, 1, 2, tempString);
       if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", tempString))
         printf("Error while publishing the hdc Sensor values!\n");
-    }
+      
+      // heizungsanlagePoint.clearFields();
+      // // Store measured value into point
+      // heizungsanlagePoint.addField("kesseltemperatureist", hdcTemperature);
 
+      // // Write data point
+      // if (!influxDBClient.writePoint(heizungsanlagePoint)){
+      //   Serial.print("InfluxDB writing Heinzungsanlage values failed: ");
+      //   Serial.println(influxDBClient.getLastErrorMessage());
+      // }
+
+      // Store measured value into point
+      hdcSensorPoint.addField("temperature", hdcTemperature);
+      hdcSensorPoint.addField("humidity", hdcTemperature);
+      // Write data point
+      if (!influxDBClient.writePoint(hdcSensorPoint)){
+        Serial.print("InfluxDB writing HDC Sensor values failed: ");
+        Serial.println(influxDBClient.getLastErrorMessage());
+      }
+    }
 	}
 }
 
 void Communication::publish(struct dataPoint point){
-  if (!PUBLISH_HEINZUNGSANLAGE_DATA){
+  if (!PUBLISH_HEINZUNGSANLAGE_DATA)
     return ;
-  }
+
   Serial.println("-----------------------------------------------");
   Serial.println("### Publish: ###");
   Serial.printf("%s = %d \n", point.name, point.value);
   // Convert the values to a char array
   char valueString[8];
   sprintf(valueString, "%d", point.value);
+
+  // Clear fields for reusing the point. Tags will remain untouched
+  hdcSensorPoint.clearFields();
+
   if(point.name == "03_Kesseltemp_(S3)"){
+    // Store measured value into point
+    hdcSensorPoint.addField("kesseltemperatureist", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", valueString))
       Serial.print("Error while publishing the kesseltemperatureist value!\n");
   }
   else if(point.name == "17_Kesseltemp_Soll"){
+    // Store measured value into point
+    hdcSensorPoint.addField("kesseltemperaturesoll", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperaturesoll", valueString))
       Serial.print("Error while publishing the kesseltemperaturesoll value!\n");
   }
   else if(point.name == "19_Betriebsart"){
+    // Store measured value into point
+    hdcSensorPoint.addField("betriebsart", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/betriebsart", valueString))
       Serial.print("Error while publishing the betriebsart value!\n");
   }
   else if(point.name == "20_Sparbetrieb"){
+    // Store measured value into point
+    hdcSensorPoint.addField("sparbetrieb", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/sparbetrieb", valueString))
       Serial.print("Error while publishing the sparbetrieb value!\n");
   }
   else if(point.name == "Party Temperatur Soll"){
+    // Store measured value into point
+    hdcSensorPoint.addField("partytemperaturesoll", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/partytemperaturesoll", valueString))
       Serial.print("Error while publishing the partytemperaturesoll value!\n");
+  }
+
+  // Write data point
+  if (!influxDBClient.writePoint(heizungsanlagePoint)){
+    Serial.print("InfluxDB writing Heinzungsanlage values failed: ");
+    Serial.println(influxDBClient.getLastErrorMessage());
   }
   // Publish the values
   // for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
