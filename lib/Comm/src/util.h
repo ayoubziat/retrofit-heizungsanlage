@@ -70,7 +70,7 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
 #define TX_PIN 26
 #define RX_PIN 25
 
-#define TIME_INTERVAL 10000
+#define TIME_INTERVAL 30000
 
 constexpr int NUM_LEDS{4};
 constexpr int DATA_PIN{15};

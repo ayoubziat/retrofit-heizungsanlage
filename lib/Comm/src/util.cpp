@@ -18,9 +18,9 @@ int64_t nextTime{0};
 CRGB leds[NUM_LEDS];
 
 static mqttConfiguration* CONFIG;
-static boolean PUBLISH_DHT_DATA = false;
-static boolean PUBLISH_HEINZUNGSANLAGE_DATA = false;
-static boolean PUBLISH_HDC_DATA = false;
+static boolean PUBLISH_DHT_DATA = true;
+static boolean PUBLISH_HEINZUNGSANLAGE_DATA = true;
+static boolean PUBLISH_HDC_DATA = true;
 
 Communication::Communication(struct mqttConfiguration config){
     comm_mqtt_config = config;
@@ -38,6 +38,10 @@ void Communication::setup(){
   dhtSensorPoint.addTag("device", DEVICE);
   hdcSensorPoint.addTag("device", DEVICE);
   heizungsanlagePoint.addTag("device", DEVICE);
+
+  // dhtSensorPoint.addTag("name", "DHT");
+  // hdcSensorPoint.addTag("device", "HDC");
+  // heizungsanlagePoint.addTag("device", "Heizungsanlage");
 
   // Accurate time is necessary for certificate validation and writing in batches
   // For the fastest time sync find NTP servers in your area: https://www.pool.ntp.org/zone/
@@ -241,6 +245,8 @@ void Communication::loop(){
       // heizungsanlagePoint.clearFields();
       // // Store measured value into point
       // heizungsanlagePoint.addField("kesseltemperatureist", hdcTemperature);
+      // heizungsanlagePoint.addField("kesseltemperaturesoll", hdcTemperature);
+      // heizungsanlagePoint.addField("partytemperaturesoll", hdcTemperature);
 
       // // Write data point
       // if (!influxDBClient.writePoint(heizungsanlagePoint)){
