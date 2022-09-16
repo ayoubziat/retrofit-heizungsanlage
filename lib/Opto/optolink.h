@@ -10,6 +10,7 @@ struct dataPoint{
   String name;
 };
 
+enum StateMachine { INIT = 0, IDLE, READ, WRITE, LISTEN, WAIT };
 
 class Optolink {
   public:
@@ -18,6 +19,7 @@ class Optolink {
     uint8_t rxMsgLen{0};
     uint8_t datapointIndex{0};
     HardwareSerial* stream{nullptr};
+    StateMachine currentState{INIT};
     struct dataPoint datapoints[10] = {
         {0, 0x00F8, 0x02, -1, "Gerätekennung"}, 
         {0, 0x0802, 0x02, 10, "03_Kesseltemp_(S3)"},
@@ -30,6 +32,16 @@ class Optolink {
         {0, 0x08A7, 0x04, -1, "Betriebsstunden Stufe 1"},
         {0, 0x2308, 0x01, -1, "Party Temperatur Soll"},
     };
+    void setState(StateMachine);
+    void setLastMillis(unsigned long);
     void clearInputStream(void);
     void debugPrinter(void);
+
+    bool timeout(unsigned long, uint16_t);
+
+    void init(void);
+    void idle(void);
+    void read(void);
+    void listen(void);
+    void wait(void);
   };
