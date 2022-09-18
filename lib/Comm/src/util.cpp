@@ -15,13 +15,11 @@ Point heizungsanlagePoint("Heinzungsanlage");
 int64_t nextTime{0};
 CRGB leds[NUM_LEDS];
 
-static mqttConfiguration* CONFIG;
 static boolean PUBLISH_DHT_DATA = true;
 static boolean PUBLISH_HEINZUNGSANLAGE_DATA = true;
 
 Communication::Communication(struct mqttConfiguration config){
-    comm_mqtt_config = config;
-    CONFIG = &comm_mqtt_config;
+  comm_mqtt_config = config;
 }
 
 void Communication::setup(){
@@ -61,42 +59,42 @@ void Communication::setup(){
 void Communication::setup_wifi() {
   // We start by connecting to a WiFi network
   Serial.println("-----------------------------------------------");
-  this->commSerial->print("### Setup WiFi ###\n");
-  this->commSerial->print("Connecting to ");
-  this->commSerial->println(comm_mqtt_config.ssid);
+  Serial.print("### Setup WiFi ###\n");
+  Serial.print("Connecting to ");
+  Serial.println(comm_mqtt_config.ssid);
   // Setup wifi connection
   WiFi.mode(WIFI_STA);
   // WiFi.begin(comm_mqtt_config.ssid, comm_mqtt_config.password);
   wifiMulti.addAP(comm_mqtt_config.ssid, comm_mqtt_config.password);
   // Connect to WiFi
   while (wifiMulti.run() != WL_CONNECTED){
-    this->commSerial->print(".");
+    Serial.print(".");
     delay(100);
   }
   char buf[16];
   IPAddress ip = WiFi.localIP();
   sprintf(buf, "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
-  this->commSerial->printf("\nWiFi connected! IP address: %s\n", buf);
+  Serial.printf("\nWiFi connected! IP address: %s\n", buf);
   Serial.println("-----------------------------------------------");
 }
 
 void Communication::reconnect() {
   Serial.println("-----------------------------------------------");
-  this->commSerial->println("## Reconnect ##");
+  Serial.println("## Reconnect ##");
   // Loop until we're reconnected
   while (!pubSubClient.connected()) {
-    this->commSerial->print("Attempting MQTT connection...\n\t");
+    Serial.print("Attempting MQTT connection...\n\t");
     // Attempt to connect
     if (pubSubClient.connect("Lab@home")) {
-      this->commSerial->println("Device connected");
+      Serial.println("Device connected");
       // Subscribe to topics
       for(string mqtt_topic: comm_mqtt_config.mqtt_subscribe_topics){
-        this->commSerial->printf("Subscribing to MQTT topic: %s\n", mqtt_topic.c_str());
+        Serial.printf("Subscribing to MQTT topic: %s\n", mqtt_topic.c_str());
         pubSubClient.subscribe(mqtt_topic.c_str());
       }
       break;
     } else {
-      this->commSerial->printf("Failed, rc=%d. Try again in 2 seconds\n", pubSubClient.state());
+      Serial.printf("Failed, rc=%d. Try again in 2 seconds\n", pubSubClient.state());
       // Wait 2 seconds before retrying
       delay(2000);
     }
@@ -110,7 +108,6 @@ void Communication::mqttCallback(char* topic, byte* message, unsigned int length
   Serial.printf("Message arrived on topic: %s \n", topic);
   String msg;
   for (int i = 0; i < length; i++) {
-    //Serial.printf("%c", (char)message[i]);
     msg += (char)message[i];
   }
   Serial.printf("Message is: %s\n", msg);
@@ -163,7 +160,7 @@ void Communication::loop(){
   if (wifiMulti.run() != WL_CONNECTED) {
     Serial.println("Wifi connection lost");
     while (wifiMulti.run() != WL_CONNECTED){
-      this->commSerial->print(".");
+      Serial.print(".");
       delay(100);
     }
   }
@@ -207,19 +204,19 @@ void Communication::loop(){
         if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", tempString))
           printf("Error while publishing the hdc Sensor values!\n");
 
-        // heizungsanlagePoint.clearFields();
-        // // Store measured value into point
-        // heizungsanlagePoint.addField("kesseltemperatureist", dhtTemp);
-        // heizungsanlagePoint.addField("kesseltemperaturesoll", dhtTemp);
-        // heizungsanlagePoint.addField("partytemperaturesoll", dhtTemp);
-        // heizungsanlagePoint.addField("sparbetrieb", 0);
-        // heizungsanlagePoint.addField("betriebsart", 0);
+        heizungsanlagePoint.clearFields();
+        // Store measured value into point
+        heizungsanlagePoint.addField("kesseltemperatureist", dhtTemp);
+        heizungsanlagePoint.addField("kesseltemperaturesoll", dhtTemp);
+        heizungsanlagePoint.addField("partytemperaturesoll", dhtTemp);
+        heizungsanlagePoint.addField("sparbetrieb", 0);
+        heizungsanlagePoint.addField("betriebsart", 0);
 
-        // // Write data point
-        // if (!influxDBClient.writePoint(heizungsanlagePoint)){
-        //   Serial.print("InfluxDB writing Heinzungsanlage values failed: ");
-        //   Serial.println(influxDBClient.getLastErrorMessage());
-        // }
+        // Write data point
+        if (!influxDBClient.writePoint(heizungsanlagePoint)){
+          Serial.print("InfluxDB writing Heinzungsanlage values failed: ");
+          Serial.println(influxDBClient.getLastErrorMessage());
+        }
       }
     }
   }

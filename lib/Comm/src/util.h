@@ -27,7 +27,7 @@ struct mqttConfiguration {
 class Communication {
     public:
         struct mqttConfiguration comm_mqtt_config;
-        HardwareSerial* commSerial{nullptr};
+        // HardwareSerial* commSerial{nullptr};
         Communication(struct mqttConfiguration config);
         void setup();
         void setup_wifi();
@@ -56,7 +56,6 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
   {
     "de/lab@home/lightControl",
     "de/lab@home/dht/publishData",
-    "de/lab@home/hdc/publishData",
     "de/heizungsanlage/data/publishData"
   }
 };
