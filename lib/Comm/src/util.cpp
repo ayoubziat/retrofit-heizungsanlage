@@ -278,35 +278,35 @@ void Communication::publish(struct dataPoint point){
   sprintf(valueString, "%d", point.value);
 
   // Clear fields for reusing the point. Tags will remain untouched
-  hdcSensorPoint.clearFields();
+  heizungsanlagePoint.clearFields();
 
   if(point.name == "03_Kesseltemp_(S3)"){
     // Store measured value into point
-    hdcSensorPoint.addField("kesseltemperatureist", point.value);
+    heizungsanlagePoint.addField("kesseltemperatureist", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", valueString))
       Serial.print("Error while publishing the kesseltemperatureist value!\n");
   }
   else if(point.name == "17_Kesseltemp_Soll"){
     // Store measured value into point
-    hdcSensorPoint.addField("kesseltemperaturesoll", point.value);
+    heizungsanlagePoint.addField("kesseltemperaturesoll", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperaturesoll", valueString))
       Serial.print("Error while publishing the kesseltemperaturesoll value!\n");
   }
   else if(point.name == "19_Betriebsart"){
     // Store measured value into point
-    hdcSensorPoint.addField("betriebsart", point.value);
+    heizungsanlagePoint.addField("betriebsart", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/betriebsart", valueString))
       Serial.print("Error while publishing the betriebsart value!\n");
   }
   else if(point.name == "20_Sparbetrieb"){
     // Store measured value into point
-    hdcSensorPoint.addField("sparbetrieb", point.value);
+    heizungsanlagePoint.addField("sparbetrieb", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/sparbetrieb", valueString))
       Serial.print("Error while publishing the sparbetrieb value!\n");
   }
   else if(point.name == "Party Temperatur Soll"){
     // Store measured value into point
-    hdcSensorPoint.addField("partytemperaturesoll", point.value);
+    heizungsanlagePoint.addField("partytemperaturesoll", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/partytemperaturesoll", valueString))
       Serial.print("Error while publishing the partytemperaturesoll value!\n");
   }
@@ -316,9 +316,6 @@ void Communication::publish(struct dataPoint point){
     Serial.print("InfluxDB writing Heinzungsanlage values failed: ");
     Serial.println(influxDBClient.getLastErrorMessage());
   }
-  // Publish the values
-  // for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
-  // }
   Serial.println("-----------------------------------------------");
 }
 

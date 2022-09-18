@@ -5,7 +5,7 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
-#define DHTPIN 0
+#define DHTPIN 19
 #define DHTTYPE DHT11
 
 class DHTSensor{

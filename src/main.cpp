@@ -126,5 +126,4 @@ void loop() {
   }
 
   optolink.debugPrinter();
-  comm.loop();
 }
