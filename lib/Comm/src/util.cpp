@@ -1,6 +1,5 @@
 #include "util.h"
 
-ClosedCube_HDC1080 hdc1080;
 WiFiClient deviceClient;
 DHTSensor dhtSensor;
 PubSubClient pubSubClient(deviceClient);
@@ -11,7 +10,6 @@ InfluxDBClient influxDBClient(INFLUXDB_URL, INFLUXDB_ORG, INFLUXDB_BUCKET, INFLU
 
 // Data points
 Point dhtSensorPoint("DHTSensor");
-Point hdcSensorPoint("HDCSensor");
 Point heizungsanlagePoint("Heinzungsanlage");
 
 int64_t nextTime{0};
@@ -20,7 +18,6 @@ CRGB leds[NUM_LEDS];
 static mqttConfiguration* CONFIG;
 static boolean PUBLISH_DHT_DATA = true;
 static boolean PUBLISH_HEINZUNGSANLAGE_DATA = true;
-static boolean PUBLISH_HDC_DATA = true;
 
 Communication::Communication(struct mqttConfiguration config){
     comm_mqtt_config = config;
@@ -29,14 +26,12 @@ Communication::Communication(struct mqttConfiguration config){
 
 void Communication::setup(){
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
-  hdc1080.begin(0x40);
   dhtSensor.setup();
   delay(1000);
   Communication::setup_wifi();
 
   // Add tags
   dhtSensorPoint.addTag("device", DEVICE);
-  hdcSensorPoint.addTag("device", DEVICE);
   heizungsanlagePoint.addTag("device", DEVICE);
 
   // dhtSensorPoint.addTag("name", "DHT");
@@ -60,7 +55,7 @@ void Communication::setup(){
   pubSubClient.setServer(comm_mqtt_config.mqtt_server, comm_mqtt_config.mqtt_port);
 	pubSubClient.setCallback(mqttCallback);
   Communication::reconnect();
-  printSerialNumber();
+  //printSerialNumber();
 }
 
 void Communication::setup_wifi() {
@@ -146,19 +141,6 @@ void Communication::mqttCallback(char* topic, byte* message, unsigned int length
       Serial.print("Message couldn't be handled\n");
     }
   }
-  else if (string(topic) == "de/lab@home/hdc/publishData"){
-    if(msg == "true"){
-      Serial.print("Publish HDC Sensor data\n");
-      PUBLISH_HDC_DATA = true;
-    }
-    else if(msg == "false"){
-      Serial.print("Stop publish HDC Sensor data\n");
-      PUBLISH_HDC_DATA = false;
-    }
-    else{
-      Serial.print("Message couldn't be handled\n");
-    }
-  }
   else if (string(topic) == "de/heizungsanlage/data/publishData"){
     if(msg == "true"){
       Serial.print("Publish Heinzungsanlage data\n");
@@ -194,7 +176,7 @@ void Communication::loop(){
 	if (current_time - nextTime > TIME_INTERVAL) {
 		nextTime = current_time;
 
-    if (PUBLISH_DHT_DATA){
+    if (PUBLISH_DHT_DATA) {
       // Clear fields for reusing the point. Tags will remain untouched
       dhtSensorPoint.clearFields();
 
@@ -203,8 +185,7 @@ void Communication::loop(){
       // Check if read failed.
       if (isnan(dhtHumidity) || isnan(dhtTemp)) {
         Serial.println(F("Failed to read from DHT sensor"));
-      }
-      else{
+      } else {
         char dht_json_Content[80];
         sprintf(dht_json_Content, "{\"humidity\":\"%f\", \"temperature\":\"%f\"}", dhtHumidity, dhtTemp);
         Serial.print("DHT measurements: ");
@@ -220,50 +201,28 @@ void Communication::loop(){
           Serial.print("InfluxDB writing DHT Sensor values failed: ");
           Serial.println(influxDBClient.getLastErrorMessage());
         }
+
+        char tempString[8];
+        dtostrf(dhtTemp, 1, 2, tempString);
+        if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", tempString))
+          printf("Error while publishing the hdc Sensor values!\n");
+
+        // heizungsanlagePoint.clearFields();
+        // // Store measured value into point
+        // heizungsanlagePoint.addField("kesseltemperatureist", dhtTemp);
+        // heizungsanlagePoint.addField("kesseltemperaturesoll", dhtTemp);
+        // heizungsanlagePoint.addField("partytemperaturesoll", dhtTemp);
+        // heizungsanlagePoint.addField("sparbetrieb", 0);
+        // heizungsanlagePoint.addField("betriebsart", 0);
+
+        // // Write data point
+        // if (!influxDBClient.writePoint(heizungsanlagePoint)){
+        //   Serial.print("InfluxDB writing Heinzungsanlage values failed: ");
+        //   Serial.println(influxDBClient.getLastErrorMessage());
+        // }
       }
     }
-
-    if (PUBLISH_HDC_DATA){
-      // Clear fields for reusing the point. Tags will remain untouched
-      hdcSensorPoint.clearFields();
-
-      float hdcTemperature = hdc1080.readTemperature(); 
-      float hdcHumidity = hdc1080.readHumidity();
-      char hdc_json_Content[60];
-      sprintf(hdc_json_Content, "{\"humidity\":\"%f\", \"temperature\":\"%f\"}", hdcHumidity, hdcTemperature);
-      Serial.print("HDC measurements: ");
-      Serial.println(hdc_json_Content);
-      // Publish the values
-      if(!pubSubClient.publish(this->comm_mqtt_config.mqtt_publish_topics.front().c_str(), hdc_json_Content))
-        printf("Error while publishing the hdc Sensor values!\n");
-      
-      char tempString[8];
-      dtostrf(hdcTemperature, 1, 2, tempString);
-      if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", tempString))
-        printf("Error while publishing the hdc Sensor values!\n");
-      
-      // heizungsanlagePoint.clearFields();
-      // // Store measured value into point
-      // heizungsanlagePoint.addField("kesseltemperatureist", hdcTemperature);
-      // heizungsanlagePoint.addField("kesseltemperaturesoll", hdcTemperature);
-      // heizungsanlagePoint.addField("partytemperaturesoll", hdcTemperature);
-
-      // // Write data point
-      // if (!influxDBClient.writePoint(heizungsanlagePoint)){
-      //   Serial.print("InfluxDB writing Heinzungsanlage values failed: ");
-      //   Serial.println(influxDBClient.getLastErrorMessage());
-      // }
-
-      // Store measured value into point
-      hdcSensorPoint.addField("temperature", hdcTemperature);
-      hdcSensorPoint.addField("humidity", hdcTemperature);
-      // Write data point
-      if (!influxDBClient.writePoint(hdcSensorPoint)){
-        Serial.print("InfluxDB writing HDC Sensor values failed: ");
-        Serial.println(influxDBClient.getLastErrorMessage());
-      }
-    }
-	}
+  }
 }
 
 void Communication::publish(struct dataPoint point){
@@ -278,35 +237,35 @@ void Communication::publish(struct dataPoint point){
   sprintf(valueString, "%d", point.value);
 
   // Clear fields for reusing the point. Tags will remain untouched
-  hdcSensorPoint.clearFields();
+  heizungsanlagePoint.clearFields();
 
   if(point.name == "03_Kesseltemp_(S3)"){
     // Store measured value into point
-    hdcSensorPoint.addField("kesseltemperatureist", point.value);
+    heizungsanlagePoint.addField("kesseltemperatureist", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperatureist", valueString))
       Serial.print("Error while publishing the kesseltemperatureist value!\n");
   }
   else if(point.name == "17_Kesseltemp_Soll"){
     // Store measured value into point
-    hdcSensorPoint.addField("kesseltemperaturesoll", point.value);
+    heizungsanlagePoint.addField("kesseltemperaturesoll", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/kesseltemperaturesoll", valueString))
       Serial.print("Error while publishing the kesseltemperaturesoll value!\n");
   }
   else if(point.name == "19_Betriebsart"){
     // Store measured value into point
-    hdcSensorPoint.addField("betriebsart", point.value);
+    heizungsanlagePoint.addField("betriebsart", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/betriebsart", valueString))
       Serial.print("Error while publishing the betriebsart value!\n");
   }
   else if(point.name == "20_Sparbetrieb"){
     // Store measured value into point
-    hdcSensorPoint.addField("sparbetrieb", point.value);
+    heizungsanlagePoint.addField("sparbetrieb", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/sparbetrieb", valueString))
       Serial.print("Error while publishing the sparbetrieb value!\n");
   }
   else if(point.name == "Party Temperatur Soll"){
     // Store measured value into point
-    hdcSensorPoint.addField("partytemperaturesoll", point.value);
+    heizungsanlagePoint.addField("partytemperaturesoll", point.value);
     if(!pubSubClient.publish("de/heizungsanlage/data/partytemperaturesoll", valueString))
       Serial.print("Error while publishing the partytemperaturesoll value!\n");
   }
@@ -316,23 +275,5 @@ void Communication::publish(struct dataPoint point){
     Serial.print("InfluxDB writing Heinzungsanlage values failed: ");
     Serial.println(influxDBClient.getLastErrorMessage());
   }
-  // Publish the values
-  // for (string topic: this->comm_mqtt_config.mqtt_publish_topics){
-  // }
-  Serial.println("-----------------------------------------------");
-}
-
-
-// Helper functions
-void printSerialNumber() {
-  Serial.println("-----------------------------------------------");
-  Serial.println("## Print Serial Number ##");
-  Serial.printf("Manufacturer ID=0x%x\n", hdc1080.readManufacturerId()); // 0x5449 ID of Texas Instruments
-	Serial.printf("Device ID=0x%x\n", hdc1080.readDeviceId()); // 0x1050 ID of the device
-
-	HDC1080_SerialNumber sernum = hdc1080.readSerialNumber();
-	char format[40];
-	sprintf(format, "%02X-%04X-%04X", sernum.serialFirst, sernum.serialMid, sernum.serialLast);
-	Serial.printf("Device Serial Number=%s\n", format);
   Serial.println("-----------------------------------------------");
 }

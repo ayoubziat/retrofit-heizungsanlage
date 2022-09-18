@@ -4,7 +4,6 @@
 #include <FastLED.h>
 #include <PubSubClient.h>
 #include <WiFiMulti.h>
-#include <ClosedCube_HDC1080.h>
 #include <iostream> 
 #include <list>
 #include <InfluxDbClient.h>
