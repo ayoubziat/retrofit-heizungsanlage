@@ -10,5 +10,5 @@
 
 ## setup InfluxDB and Grafana
 * Use following links to install & setup InfluxDB and Grafana services:
-- Grafana: https://grafana.com/grafana/download
-- InfluxDB: https://www.influxdata.com/
+  - Grafana: https://grafana.com/grafana/download
+  - InfluxDB: https://www.influxdata.com/
