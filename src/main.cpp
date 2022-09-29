@@ -30,14 +30,11 @@ void loop() {
         if(optolink.stream -> read() == 0x05){
           uint8_t buff[] = {0x01};
           optolink.stream -> write(buff, sizeof(buff));
-          
-          
           if(write_msg && (millis() - write_millis > 10 * 1000UL)){
             currentState = WRITE;
           }else {
             currentState = IDLE;
           }
-          
         }
       }
       break;
@@ -112,8 +109,8 @@ void loop() {
       break;
     }
     case WAIT: {
-      comm.loop();
       if(millis() - optolink.lastMillis > 10 * 1000UL) {
+      comm.loop();
         optolink.clearInputStream();
         for(int j =0; j< (sizeof(optolink.datapoints) / sizeof(optolink.datapoints[0])); j++){
           comm.publish(optolink.datapoints[j]);

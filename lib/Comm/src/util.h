@@ -61,12 +61,12 @@ const struct mqttConfiguration MQTT_CONFIG_EXAMPLE = {
 };
 
 // Lab@Home Pins
-//#define TX_PIN 5
-//#define RX_PIN 6
+#define TX_PIN 0
+#define RX_PIN 4
 
 // esp32 NodeMCU
-#define TX_PIN 26
-#define RX_PIN 25
+// #define TX_PIN 26
+// #define RX_PIN 25
 
 #define TIME_INTERVAL 30000
 
