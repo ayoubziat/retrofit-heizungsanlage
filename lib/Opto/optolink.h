@@ -1,6 +1,7 @@
+#include <Arduino.h>
 #include <iostream> 
 #include <list>
-#include <Arduino.h>
+#include <string.h>
 
 struct dataPoint{
   uint32_t value;

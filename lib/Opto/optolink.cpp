@@ -1,6 +1,4 @@
-#include <Arduino.h>
-#include <string.h>
-#include <optolink.h>
+#include "optolink.h"
 
 
 void Optolink::init(){

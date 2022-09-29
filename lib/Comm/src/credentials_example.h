@@ -1,4 +1,4 @@
-// Create a file named "credentials.h" under lib/Comm/src and define the credentials/private data
+// Create a file named "credentials.h" under lib/Comm/src and define your credentials/private data
 
 
 // WiFi AP SSID
@@ -6,7 +6,7 @@
 // WiFi password
 #define WIFI_PASSWORD "PASSWORD"
 
-
+// -------- InfluxDB Credentials --------
 // InfluxDB v2 server url (Use: InfluxDB UI -> Load Data -> Client Libraries)
 #define INFLUXDB_URL ""
 // InfluxDB v2 server or cloud API token (Use: InfluxDB UI -> Data -> API Tokens -> Generate API Token)
