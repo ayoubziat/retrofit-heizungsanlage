@@ -26,7 +26,7 @@ void Optolink::read(){
       //Serial.print(buff[1]); Serial.print("\t"); Serial.println(buff[2]);
   stream -> write(buff, sizeof(buff));
   setState(LISTEN);
-};
+}
 
 void Optolink::listen(){
   uint8_t i = 0;
@@ -65,11 +65,11 @@ void Optolink::listen(){
     setLastMillis(millis());
     setState(INIT);
   }
-};
+}
 
 void Optolink::wait(){
 
-};
+}
 
 void Optolink::setState(StateMachine STATE) { currentState = STATE; };
 void Optolink::setLastMillis(unsigned long milliseconds){ lastMillis = milliseconds; };
@@ -94,8 +94,43 @@ void Optolink::debugPrinter(){
     Serial.println("\t------------------------------------------------------------------------------");
     print = false;
   }
-};
+}
 
 bool Optolink::timeout(unsigned long milliseconds, uint16_t factor) {
   return (milliseconds - lastMillis > factor * 1000UL) ? true : false;
-};  
+}
+
+void Optolink::loop(Communication* comm){
+  switch(currentState){
+      case INIT: { 
+        Optolink::init();
+        break;
+      }
+      case IDLE: {
+        Optolink::idle();
+        break;
+      }
+      case READ: {
+        Optolink::read();
+        break;
+      }
+      case WRITE: { break; }
+      case LISTEN: {
+        Optolink::listen();
+        break;
+      }
+      case WAIT: {
+        if(Optolink::timeout(millis(), 10)) {
+          comm->loop();
+          Optolink::clearInputStream();
+          for(int j = 0; j < (sizeof(datapoints) / sizeof(datapoints[0])); j++){
+            comm->publish(datapoints[j]);
+          }
+          Optolink::setState(INIT);
+        }
+        break;
+      }
+  }
+
+  Optolink::debugPrinter();
+}

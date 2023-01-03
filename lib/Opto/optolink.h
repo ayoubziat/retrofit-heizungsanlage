@@ -1,15 +1,11 @@
+#ifndef __OPTOLINK_H
+#define __OPTOLINK_H
+
 #include <Arduino.h>
 #include <iostream> 
 #include <list>
 #include <string.h>
-
-struct dataPoint{
-  uint32_t value;
-  uint16_t address;
-  uint8_t length;
-  int16_t factor;
-  String name;
-};
+#include <util.h>
 
 enum StateMachine { INIT = 0, IDLE, READ, WRITE, LISTEN, WAIT };
 
@@ -45,4 +41,7 @@ class Optolink {
     void read(void);
     void listen(void);
     void wait(void);
+    void loop(Communication* comm);
   };
+
+  #endif // __OPTOLINK_H

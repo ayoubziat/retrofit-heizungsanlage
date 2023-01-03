@@ -1,6 +1,5 @@
 #include "util.h"
 #include "configuration.h"
-#include "optolink.h"
 #include "dht_sensor.h"
 
 #include <FastLED.h>

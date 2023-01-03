@@ -10,6 +10,8 @@ using namespace std;
 Optolink optolink;  
 Communication comm(MQTT_CONFIG_EXAMPLE);
 
+boolean SIMULATION_MODE = false;
+
 void setup() {
   Serial.begin(57600);
   comm.setup();
@@ -19,40 +21,12 @@ void setup() {
 }
 
 void loop() {
-
-  switch(optolink.currentState){
-    case INIT: { 
-      optolink.init();
-      break;
-    }
-    case IDLE: {
-      optolink.idle();
-      break;
-    }
-    case READ: {
-      optolink.read();
-      break;
-    }
-    case WRITE: { break; }
-    case LISTEN: {
-      optolink.listen();
-      break;
-    }
-    case WAIT: {
-      if(optolink.timeout(millis(), 10)) {
-        comm.loop();
-        optolink.clearInputStream();
-        for(int j = 0; j < (sizeof(optolink.datapoints) / sizeof(optolink.datapoints[0])); j++){
-          comm.publish(optolink.datapoints[j]);
-        }
-        optolink.setState(INIT);
-      }
-      break;
-    }
+  if (SIMULATION_MODE) {
+    // ----- Simulation code ----- 
+    comm.loop();
   }
-
-  optolink.debugPrinter();
-
-  // ----- Simulation code (uncomment following code line) ----- 
-  comm.loop();
+  else
+  {
+    optolink.loop(&comm);
+  }
 }

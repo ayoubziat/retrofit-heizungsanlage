@@ -17,6 +17,14 @@ struct mqttConfiguration {
     list<string> mqtt_subscribe_topics;
 };
 
+struct dataPoint{
+  uint32_t value;
+  uint16_t address;
+  uint8_t length;
+  int16_t factor;
+  String name;
+};
+
 class Communication {
     public:
         struct mqttConfiguration comm_mqtt_config;
