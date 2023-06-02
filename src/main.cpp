@@ -10,7 +10,7 @@ using namespace std;
 Optolink optolink;  
 Communication comm(MQTT_CONFIG_EXAMPLE);
 
-boolean SIMULATION_MODE = false;
+boolean SIMULATION_MODE = true;
 
 void setup() {
   Serial.begin(57600);

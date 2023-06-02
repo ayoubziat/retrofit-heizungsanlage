@@ -67,7 +67,6 @@ void Communication::setup_wifi() {
   Serial.println(comm_mqtt_config.ssid);
   // Setup wifi connection
   WiFi.mode(WIFI_STA);
-  // WiFi.begin(comm_mqtt_config.ssid, comm_mqtt_config.password);
   wifiMulti.addAP(comm_mqtt_config.ssid, comm_mqtt_config.password);
   // Connect to WiFi
   while (wifiMulti.run() != WL_CONNECTED){
